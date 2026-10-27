@@ -4,8 +4,40 @@ Código C++ (Arduino) de las placas ESP32. Se avanza con **pruebas pequeñas**, 
 
 | Carpeta | Qué prueba | Estado |
 |---|---|---|
-| `prueba_01_wifi/` | Conexión WiFi, IP, señal y hora UTC por internet (NTP) | Escrita; **no compilada** en el entorno de desarrollo (sin acceso a las herramientas de Espressif). Compílala tú en Wokwi o Arduino IDE. |
+| `controlador/` | **Firmware principal de la DevKit (v1)**: 3 zonas, riego y ventilación automáticos, UART a la CYD, lecturas a Supabase y órdenes de la web | **Compilado** (núcleo ESP32 3.0.7) y **probado en Wokwi** (control local); falta la nube con clave y la placa real |
+| `prueba_01_wifi/` | Conexión WiFi, IP, señal y hora UTC por internet (NTP) | Escrita; no compilada en el entorno de desarrollo. Compílala tú en Wokwi o Arduino IDE. |
+| `prueba_03_sensores/` | **DevKit**: DHT22 y 3 sondas de suelo (con calibración seco/agua) en el Monitor Serie | **Compilada** (núcleo ESP32 3.0.7); falta probar en la placa |
+| `prueba_04_reles/` | **DevKit**: relés de 2 bombas y 2 ventiladores, menú por Monitor Serie, bombas con límite de 10 s | **Compilada** (núcleo ESP32 3.0.7); falta probar en la placa |
+| `prueba_05_pantalla_cyd/` | **CYD (ESP32-2432S028)**: pantalla con las 3 zonas (valores de ejemplo), LDR integrado y recepción UART en GPIO 35 | **Compilada** (núcleo ESP32 3.0.7); falta probar en la placa |
 | `prueba_02_supabase/` | Envía lecturas a Supabase por HTTPS cada 15 s y recibe órdenes cada 5 s (el LED integrado hace de "luces LED") | Escrita; sintaxis y lógica revisadas en PC; **no compilada** para ESP32 |
+
+## Controlador v1 (`controlador/`)
+
+Un solo programa para la ESP32 DevKit que maneja las 3 zonas. Archivos:
+
+| Archivo | Para qué |
+|---|---|
+| `controlador.ino` | Programa principal (en Wokwi se pega en `sketch.ino`) |
+| `config.h` | Pines, zonas, umbrales y tiempos. **Lo que más vas a ajustar** |
+| `secretos.ejemplo.h` | Plantilla de `secretos.h` (WiFi, Supabase y clave del dispositivo). `secretos.h` no se sube a Git |
+| `diagram.json`, `libraries.txt` | Circuito y bibliotecas para Wokwi |
+
+**Reglas de control (valores de prueba, no agronómicos):** húmeda riega bajo 55 % hasta 70 %; selvática riega bajo 60 % hasta 75 %; la árida no tiene bomba. Ventilador 1 (árida) sobre 35 °C o 40 % HR; ventilador 2 (selvática) sobre 30 °C o 95 % HR.
+**Seguridad:** una bomba nunca pasa de 20 s seguidos y luego descansa 30 s; sin dato de suelo **no riega**; una orden de la web deja ese actuador en manual 2 min.
+
+### En Wokwi (simulación)
+
+1. Proyecto nuevo ESP32 en <https://wokwi.com>. Pestañas: `sketch.ino` (pega `controlador.ino`), `diagram.json`, y crea `config.h` y `secretos.h` (botón ▾ → *New file*).
+2. En `secretos.h` pon `#define MODO_WOKWI 1`, WiFi `Wokwi-GUEST` con clave `""` y el dispositivo `wokwi-controlador-01` con su clave (está en `clave_wokwi.txt`, que no se sube a Git).
+3. *Library Manager* → agrega **DHT sensor library**, **Adafruit Unified Sensor** y **ArduinoJson**.
+4. ▶. Mueve los potenciómetros (suelo) y haz clic en los DHT22 para cambiar temperatura y humedad. Los LED azules son las bombas y los celestes los ventiladores.
+5. **No guardes el proyecto con la clave puesta** (los proyectos guardados de Wokwi pueden ser públicos). Si se filtra, se revoca en Supabase.
+
+### En la placa física
+
+1. Copia `secretos.ejemplo.h` como `secretos.h` (o usa el que ya está en tu PC) y escribe tu WiFi de 2,4 GHz. **No** definas `MODO_WOKWI`.
+2. Calibra las sondas con la prueba 03 y pon los valores en `config.h` (`SUELO_SECO`, `SUELO_MOJADO`).
+3. Placa **ESP32 Dev Module**, sube el programa y abre el Monitor Serie a 115200.
 
 ## Opción A: probar sin placa, en Wokwi (navegador, sin instalar nada)
 
@@ -55,3 +87,16 @@ Necesita la biblioteca **ArduinoJson** (versión 7). En Arduino IDE: *Herramient
 
 Los valores que envía esta prueba son **inventados** (no hay sensores): por eso van con origen `simulado`.
 Bomba y extractor se responden como `rechazado` porque aún no están conectados.
+
+## Pruebas 03, 04 y 05 (hardware real)
+
+Antes de conectar nada, lee **`docs/plan-hardware.md`**: tiene la tabla de pines, la alimentación (bombas con fuente aparte) y el orden de las fases.
+
+- **Prueba 03 (DevKit):** conecta los DHT22 y las sondas (VCC de las sondas al GPIO 33, **no** a 5 V) y sube el programa.
+  - En el Monitor Serie (115200) verás cada zona cada 3 s.
+  - Envía `c` para ver solo los valores crudos y **calibrar** cada sonda: primero seca, al aire; luego con la parte metálica en un vaso con agua. Anota los dos números en la tabla `ZONAS` del código.
+- **Prueba 04 (DevKit):** primero **sin cargas** (solo el "clic" de cada relé).
+  - Teclas `1`–`4` encienden o apagan cada relé, `0` apaga todo y `s` hace una secuencia.
+  - Luego conecta los ventiladores y, por último, las bombas, con su fuente de 5 V aparte y la manguera en agua.
+- **Prueba 05 (CYD):** conecta la CYD por USB, elige la placa *ESP32 Dev Module* y sube el programa. Debe verse la pantalla de BAJOTERRA con las 3 zonas.
+  - Si queda en blanco, avisa: puede ser la versión con controlador ST7789.

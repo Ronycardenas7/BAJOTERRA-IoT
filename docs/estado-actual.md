@@ -1,5 +1,13 @@
 # Estado actual
 
+> **Actualización 2026-10-27 (madrugada):** pruebas "reales" en línea.
+> - Migración 0004 (dispositivo `controlador`) **aplicada** en Supabase; creados `esp32-controlador-01` y `wokwi-controlador-01` (D-012).
+> - Nuevo `firmware/controlador/` v1. **Compilado de verdad** con arduino-cli y el núcleo ESP32 3.0.7 (modo placa y modo Wokwi), igual que las pruebas 03, 04 y 05.
+> - **Simulado en Wokwi** (navegador del PC del usuario): los 3 DHT22 y las 3 sondas (potenciómetros) se leen bien; la bomba 1 se encendió con suelo seco (30 %) y se apagó sola a los 20 s por seguridad; la selvática (70 %) quedó sin regar por la histéresis; WiFi `Wokwi-GUEST` y HTTPS hasta Supabase funcionan (respuesta 403 esperada porque la clave del dispositivo **no** se escribió en Wokwi: falta que el usuario la pegue).
+> - Pendiente: pegar la clave en Wokwi y ver las lecturas `simulado` en la web; ejecutar `scripts\instalar_windows.bat` en el PC; probar en la placa real.
+
+> **Actualización 2026-10-27 (noche):** plan de hardware real (D-011, `docs/plan-hardware.md`) y Pruebas 03 (sensores), 04 (relés) y 05 (pantalla CYD). Sintaxis revisada con g++ y cabeceras de imitación; **no compiladas ni probadas en las placas**. El repositorio se clonó en el PC "moniropc" (carpeta `ODIO ESTA CARRERA\Bajoterra`); allí no hay terminal remota disponible, así que las dependencias no se instalaron desde esta sesión.
+
 > **Actualización 2026-10-27 (tarde):** datos en la nube con Supabase (Opción A, D-010). Ver la sección "Supabase y Prueba 02".
 
 > **Actualización 2026-10-27:** se cambiaron las zonas a árida/húmeda/selvática y se rediseñó la web (ver D-009 y la sección "Cambio de zonas y rediseño" más abajo).

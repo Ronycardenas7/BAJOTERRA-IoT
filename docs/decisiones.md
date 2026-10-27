@@ -69,9 +69,26 @@ Registro de decisiones del proyecto. Cada una indica su estado: **acordada** (el
 - Reloj: se agregó `hora_servidor()` (0003) porque un PC con la hora mal configurada fechaba mal las lecturas y la web veía todo como desactualizado.
 - Limitación conocida: el firmware de la Prueba 02 no verifica el certificado TLS (`setInsecure`). Pendiente de corregir.
 
+## D-011 — Hardware real: 2 ESP32 con cable, 3 zonas (acordada, 2026-10-27)
+
+- Sin sensores inalámbricos (no se pueden conseguir). Todo va con cable.
+- La "pantalla" ESP32-2432S028 es una **ESP32 con pantalla integrada (CYD)**. Arquitectura: la **DevKit** es el controlador (sensores, relés, nube) y la **CYD** es la pantalla, que recibe datos por **UART de un solo sentido** (DevKit GPIO 17 → CYD GPIO 35). La pantalla funciona sin internet.
+- 3 zonas (árida, húmeda, selvática) con el inventario: 2 DHT22 (**falta 1 para la selvática**), 3 sondas de suelo resistivas, 2 bombas, 2 ventiladores y 4 relés. Asignación inicial: bomba 1 → húmeda, bomba 2 → selvática, ventilador 1 → árida, ventilador 2 → selvática. La árida queda con riego manual. Es configurable.
+- No hay sensor de luz por zona; el LDR integrado de la CYD se usará como luz relativa (%) del invernadero, no en lux. CO₂ y radiación quedan `null` con hardware real.
+- Sondas de suelo alimentadas desde un GPIO solo al medir (contra la corrosión). Bombas y ventiladores con fuente de 5 V aparte y GND común (contra los reinicios).
+- Pantalla con la biblioteca Adafruit ILI9341 (en lugar de TFT_eSPI, que exige editar archivos de la biblioteca).
+- Detalle completo: `docs/plan-hardware.md`.
+
+## D-012 — Un dispositivo "controlador" para las 3 zonas (provisional, 2026-10-27)
+
+- Migración `0004_dispositivo_controlador.sql` (**aplicada en Supabase** el 2026-10-27): nuevo tipo de dispositivo `controlador`. Una sola clave escribe en cualquier zona o depósito (el mensaje indica `"zona"`), ve las órdenes de todas las zonas y puede declarar origen `real`. Su campo `dispositivo` siempre es su propio id (no puede hacerse pasar por otro).
+- Dispositivos creados: `esp32-controlador-01` (placa física) y `wokwi-controlador-01` (solo simulación; clave aparte para poder revocarla sin tocar la placa). Las claves están solo en archivos ignorados por Git en el PC del usuario.
+- Motivo: sin sensores inalámbricos, una sola ESP32 con cable lee las 3 zonas (D-011); con 3 claves habría que fingir 3 dispositivos.
+- Firmware `firmware/controlador/` v1: control local primero (funciona sin internet); en Wokwi los datos van como `simulado`.
+
 ## Pendientes de decisión
 
-- Topología ESP-NOW: nodos + gateway MQTT, o ESP32 directos al broker.
+- Comprar el 3er DHT22 (zona selvática). Confirmar si la CYD es ILI9341 o ST7789 (prueba 05).
 - Depósito compartido o por zona.
 - Autenticación con Google (hoy: correo y contraseña) y dónde publicar la web (Vercel, Netlify o GitHub Pages).
 - Qué hacer con el "reinicio" de GitHub y Supabase solicitado antes (identificar recursos exactos y respaldar primero).

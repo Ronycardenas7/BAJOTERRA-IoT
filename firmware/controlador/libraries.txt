@@ -1,0 +1,4 @@
+# Bibliotecas que Wokwi debe instalar para el controlador.
+DHT sensor library
+Adafruit Unified Sensor
+ArduinoJson

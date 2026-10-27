@@ -163,10 +163,18 @@ BAJOTERRA-IoT/
 │
 ├── firmware/                      Código del ESP32 (Arduino C++)
 │   ├── README.md                  Cómo probar en Wokwi o en una placa real
+│   ├── controlador/               Firmware principal v1 de la DevKit (3 zonas, control local, nube, UART a la CYD)
+│   │   ├── controlador.ino        Programa principal
+│   │   ├── config.h               Pines, zonas, umbrales y tiempos
+│   │   ├── secretos.ejemplo.h     Plantilla de secretos.h (no se sube)
+│   │   └── diagram.json, libraries.txt  Circuito y bibliotecas para Wokwi
 │   ├── prueba_01_wifi/
 │   │   ├── prueba_01_wifi.ino     Prueba 01: WiFi + hora UTC por internet
 │   │   ├── secretos.ejemplo.h     Plantilla de credenciales WiFi (copiar como secretos.h)
 │   │   └── diagram.json           Circuito para el simulador Wokwi
+│   ├── prueba_03_sensores/        Prueba 03 (DevKit): DHT22 + 3 sondas de suelo con calibración
+│   ├── prueba_04_reles/           Prueba 04 (DevKit): 4 relés (2 bombas, 2 ventiladores) con límites de seguridad
+│   ├── prueba_05_pantalla_cyd/    Prueba 05 (CYD ESP32-2432S028): pantalla con las 3 zonas, LDR y UART
 │   └── prueba_02_supabase/
 │       ├── prueba_02_supabase.ino Prueba 02: lecturas a Supabase por HTTPS y órdenes (LED = luces)
 │       ├── secretos.ejemplo.h     Plantilla: WiFi, Supabase y clave del dispositivo (copiar como secretos.h)
@@ -182,7 +190,8 @@ BAJOTERRA-IoT/
     ├── decisiones.md              Registro de decisiones de arquitectura (D-001...)
     ├── estado-actual.md           Qué está hecho, qué se verificó y qué falta
     ├── mqtt-topics.md             Contrato de mensajes: temas, campos, unidades y rangos
-    └── tiempo-real.md             Cómo llegarán los datos del ESP32 a cualquier dispositivo
+    ├── tiempo-real.md             Cómo llegarán los datos del ESP32 a cualquier dispositivo
+    └── plan-hardware.md           Inventario, pines, cableado, alimentación y fases con el hardware real
 ```
 
 ## Carpetas que se crean solas (no se suben a Git)
