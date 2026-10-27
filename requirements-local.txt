@@ -1,0 +1,9 @@
+# Dependencias para correr TODO sin Docker con un solo entorno virtual (.venv en la raiz).
+# Instalar con:  .venv\Scripts\python -m pip install -r requirements-local.txt
+# "-r" incluye otro archivo de requisitos.
+# Backend (Flask, paho-mqtt) y sus pruebas (pytest).
+-r backend/requirements-dev.txt
+# Simulador (paho-mqtt) y sus pruebas.
+-r simulador/requirements-dev.txt
+# Broker MQTT en Python (reemplaza a Mosquitto cuando no hay Docker).
+-r broker_local/requirements.txt

@@ -1,0 +1,5 @@
+# Dependencias para desarrollo y pruebas (no van dentro de la imagen Docker).
+# Incluye todo lo de ejecución.
+-r requirements.txt
+# pytest: ejecuta las pruebas automáticas.
+pytest==9.1.1

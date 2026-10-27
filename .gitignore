@@ -1,0 +1,29 @@
+# Archivos que Git NO debe guardar.
+
+# Credenciales y configuración local (nunca se suben; la plantilla es .env.example).
+.env
+.env.local
+
+# Dependencias y compilados de JavaScript.
+node_modules/
+dist/
+
+# Entornos virtuales y caché de Python.
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+
+# Registros y archivos temporales.
+*.log
+.DS_Store
+Thumbs.db
+
+# Respaldos locales de Supabase CLI (si se usa más adelante).
+supabase/.temp/
+supabase/.branches/
+# Credenciales WiFi del firmware (cada prueba trae secretos.ejemplo.h como plantilla).
+firmware/**/secretos.h
+# Configuración del simulador en modo nube (contiene la clave del dispositivo).
+simulador/secretos_nube.conf

@@ -1,0 +1,186 @@
+# ============================================================================
+# docker-compose.yml — levanta todo el sistema BAJOTERRA con un solo comando:
+#     docker compose up --build
+# Servicios: broker MQTT (Mosquitto) -> backend (Flask) <- simulador (reemplaza al ESP32) y la web (nginx).
+# Supabase (base de datos en la nube) todavía NO está conectado: el backend guarda en memoria.
+# Todos los puertos se publican SOLO en 127.0.0.1 (únicamente accesibles desde este equipo).
+# Los límites de memoria (mem_limit) están pensados para un equipo con poca RAM.
+# ============================================================================
+
+# Nombre del proyecto: prefijo de los contenedores y de la red interna.
+name: bajoterra
+
+# Configuración de logs reutilizable: limita el tamaño para que los registros no llenen el disco.
+x-registro: &registro
+  # Guarda los logs en archivos JSON locales.
+  driver: json-file
+  # Cada archivo de log tiene como máximo 5 MB y se conservan 2 archivos.
+  options:
+    max-size: "5m"
+    max-file: "2"
+
+# Lista de servicios (contenedores).
+services:
+
+  # ---------------------------------------------------------------- Broker MQTT
+  mosquitto:
+    # Imagen oficial de Mosquitto, rama 2.0 (basada en Alpine: muy liviana).
+    image: eclipse-mosquitto:2.0
+    # Nombre fijo del contenedor.
+    container_name: bajoterra-mosquitto
+    # Si se cae por un error, Docker lo reinicia hasta 5 veces (no arranca solo al encender el PC).
+    restart: on-failure:5
+    # Proceso mínimo que recoge procesos zombi y reenvía señales (parada limpia).
+    init: true
+    # Al arrancar: (1) crea el archivo de usuarios con MQTT_USER/MQTT_PASSWORD, (2) se lo entrega al usuario "mosquitto",
+    # (3) restringe sus permisos y (4) inicia el broker. "$$" evita que Compose interprete el signo "$".
+    command:
+      - sh
+      - -c
+      - >-
+        mosquitto_passwd -b -c /mosquitto/passwd "$$MQTT_USER" "$$MQTT_PASSWORD"
+        && chown mosquitto:mosquitto /mosquitto/passwd
+        && chmod 0700 /mosquitto/passwd
+        && exec mosquitto -c /mosquitto/config/mosquitto.conf
+    # Variables que lee el comando anterior. ":?" detiene Compose con un mensaje claro si faltan en el archivo .env.
+    environment:
+      MQTT_USER: ${MQTT_USER:?Falta MQTT_USER en el archivo .env (copie .env.example como .env)}
+      MQTT_PASSWORD: ${MQTT_PASSWORD:?Falta MQTT_PASSWORD en el archivo .env (copie .env.example como .env)}
+    # Monta la configuración del broker desde el repositorio, en modo solo lectura (:ro).
+    volumes:
+      - ./docker/mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro
+    # Publica el puerto MQTT solo en este equipo (127.0.0.1). Útil para depurar con mosquitto_sub.
+    ports:
+      - "127.0.0.1:${MQTT_PUERTO_HOST:-1883}:1883"
+    # Comprueba cada 30 s que el broker acepta conexiones autenticadas y publica un mensaje de prueba.
+    healthcheck:
+      test: ["CMD-SHELL", "mosquitto_pub -h 127.0.0.1 -p 1883 -u \"$$MQTT_USER\" -P \"$$MQTT_PASSWORD\" -t salud/broker -m ok -q 0 || exit 1"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+      start_period: 5s
+    # Límite de memoria y de CPU (medio núcleo).
+    mem_limit: 64m
+    cpus: 0.5
+    # Impide que los procesos obtengan más privilegios de los que tienen.
+    security_opt:
+      - no-new-privileges:true
+    # Aplica la configuración de logs definida arriba.
+    logging: *registro
+
+  # ---------------------------------------------------------------- Backend (Flask)
+  backend:
+    # Construye la imagen desde la carpeta backend/ (usa backend/Dockerfile).
+    build:
+      context: ./backend
+    # Nombre de la imagen construida.
+    image: bajoterra/backend:dev
+    # Nombre fijo del contenedor.
+    container_name: bajoterra-backend
+    # Reinicio solo ante fallos (hasta 5 veces).
+    restart: on-failure:5
+    # Proceso mínimo que reenvía señales y limpia zombis.
+    init: true
+    # Configuración del backend (ver backend/app/config/ajustes.py).
+    environment:
+      # Dentro de la red de Docker el broker se llama "mosquitto".
+      MQTT_HOST: mosquitto
+      MQTT_PUERTO: "1883"
+      MQTT_USER: ${MQTT_USER:?Falta MQTT_USER en el archivo .env}
+      MQTT_PASSWORD: ${MQTT_PASSWORD:?Falta MQTT_PASSWORD en el archivo .env}
+      MQTT_PREFIJO: ${MQTT_PREFIJO:-bajoterra/01}
+      NIVEL_LOG: ${NIVEL_LOG:-INFO}
+    # No arranca hasta que el broker esté sano (acepta conexiones).
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    # Publica la API solo en este equipo.
+    ports:
+      - "127.0.0.1:${BACKEND_PUERTO_HOST:-5000}:5000"
+    # Comprueba cada 30 s que /salud responde (usa Python, que ya está en la imagen; no hace falta curl).
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request,sys; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:5000/salud', timeout=3).status == 200 else 1)"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    # Límites de recursos.
+    mem_limit: 192m
+    cpus: 0.5
+    # Sin privilegios extra y sin capacidades especiales del kernel (el backend no las necesita).
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    # Logs con tamaño limitado.
+    logging: *registro
+
+  # ---------------------------------------------------------------- Simulador (reemplaza al ESP32)
+  simulador:
+    # Construye la imagen desde la carpeta simulador/.
+    build:
+      context: ./simulador
+    # Nombre de la imagen construida.
+    image: bajoterra/simulador:dev
+    # Nombre fijo del contenedor.
+    container_name: bajoterra-simulador
+    # Reinicio solo ante fallos (hasta 5 veces).
+    restart: on-failure:5
+    # Proceso mínimo que reenvía la señal de parada al simulador.
+    init: true
+    # Configuración del simulador (ver simulador/sim/config.py).
+    environment:
+      MQTT_HOST: mosquitto
+      MQTT_PUERTO: "1883"
+      MQTT_USER: ${MQTT_USER:?Falta MQTT_USER en el archivo .env}
+      MQTT_PASSWORD: ${MQTT_PASSWORD:?Falta MQTT_PASSWORD en el archivo .env}
+      MQTT_PREFIJO: ${MQTT_PREFIJO:-bajoterra/01}
+      SIM_INTERVALO_S: ${SIM_INTERVALO_S:-5}
+      SIM_SEMILLA: ${SIM_SEMILLA:-}
+    # No arranca hasta que el broker esté sano.
+    depends_on:
+      mosquitto:
+        condition: service_healthy
+    # Límites de recursos (el simulador es muy liviano).
+    mem_limit: 64m
+    cpus: 0.25
+    # Sin privilegios extra ni capacidades especiales del kernel.
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    # Logs con tamaño limitado.
+    logging: *registro
+
+  # ---------------------------------------------------------------- Web (React compilado + nginx)
+  web:
+    # Construye la imagen desde la carpeta web_pwa/ (compila con pnpm y sirve con nginx).
+    build:
+      context: ./web_pwa
+    # Nombre de la imagen construida.
+    image: bajoterra/web:dev
+    # Nombre fijo del contenedor.
+    container_name: bajoterra-web
+    # Reinicio solo ante fallos (hasta 5 veces).
+    restart: on-failure:5
+    # No arranca hasta que el backend esté sano.
+    depends_on:
+      backend:
+        condition: service_healthy
+    # Publica la web solo en este equipo: http://localhost:8080
+    ports:
+      - "127.0.0.1:${WEB_PUERTO_HOST:-8080}:80"
+    # Comprueba cada 30 s que nginx responde (wget viene incluido en Alpine).
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1/"]
+      interval: 30s
+      timeout: 5s
+      retries: 3
+    # Límites de recursos (nginx usa muy poco).
+    mem_limit: 32m
+    cpus: 0.25
+    # Sin privilegios extra.
+    security_opt:
+      - no-new-privileges:true
+    # Logs con tamaño limitado.
+    logging: *registro

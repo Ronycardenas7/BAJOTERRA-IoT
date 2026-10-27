@@ -1,0 +1,7 @@
+# Dependencias de ejecución del backend (versiones exactas comprobadas el 2026-10-26).
+# Flask: servidor web y rutas HTTP.
+Flask==3.1.3
+# paho-mqtt: cliente MQTT para hablar con el broker Mosquitto.
+paho-mqtt==2.1.0
+# gunicorn: servidor de aplicaciones para Docker (más robusto que el servidor integrado de Flask).
+gunicorn==26.2.0

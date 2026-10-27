@@ -1,0 +1,14 @@
+{
+  "name": "BAJOTERRA · Invernadero inteligente",
+  "short_name": "BAJOTERRA",
+  "description": "Monitoreo y control de un invernadero con tres zonas: árida, húmeda y selvática.",
+  "lang": "es",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#06100b",
+  "theme_color": "#06100b",
+  "icons": [
+    { "src": "/icono.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any" }
+  ]
+}

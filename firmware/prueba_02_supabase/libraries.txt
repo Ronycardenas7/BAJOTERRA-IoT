@@ -1,0 +1,2 @@
+# Bibliotecas que Wokwi debe instalar para esta prueba.
+ArduinoJson

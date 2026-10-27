@@ -1,0 +1,6 @@
+# Archivos que NO se envían a Docker al construir la imagen de la web.
+# Las dependencias se instalan dentro de la imagen; copiar node_modules del equipo la haría enorme y podría romperla.
+node_modules/
+dist/
+.env
+*.log

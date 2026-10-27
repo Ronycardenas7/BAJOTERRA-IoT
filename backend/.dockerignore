@@ -1,0 +1,11 @@
+# Archivos que NO se envían a Docker al construir la imagen del backend (construcción más rápida y segura).
+tests/
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+venv/
+.env
+requirements-dev.txt
+pytest.ini
+run.py
