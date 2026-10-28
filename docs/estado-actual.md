@@ -1,5 +1,16 @@
 # Estado actual
 
+> **Actualización 2026-10-28:** revisión del código antiguo del equipo y preparación del armado físico (PC de la universidad "tecnologia-11", rama `PruebaOnline`).
+> - Revisados los 4 códigos antiguos (cerebro, pantalla, puente serial, Flask/MySQL): qué se adopta y qué no en **D-013**.
+> - Nuevo **`firmware/pantalla/`** (programa final de la CYD): recibe el JSON del controlador por GPIO 22, muestra las 3 zonas rotando y avisa si los datos están viejos. **Compilado** con ILI9341 y con ST7789 (sin advertencias). No probado en la placa ni en Wokwi (Wokwi pidió iniciar sesión en este PC).
+> - Controlador: protección contra inundación (**D-014**), calibración por defecto `SUELO_MOJADO 1480` (del código antiguo) y límites crudos configurables. **Recompilado** en modo placa y modo Wokwi.
+> - Prueba 05: RX en GPIO 22 e `invertDisplay(true)`. Prueba 03: calibración 1480. Ambas recompiladas.
+> - Nueva **`docs/guia-armado.md`**: materiales, tablas de cables, alimentación y armado en 7 fases con prueba en cada una.
+> - Documentación revisada: `AGENTS.md` actualizado a 3 zonas, Supabase y hardware real; `README.md`, `plan-hardware.md` (RX 22), `firmware/README.md`, `ESTRUCTURA.md`.
+> - La simulación de Wokwi del 2026-10-27 **no quedó guardada** (a propósito, por la clave); se puede rehacer con `firmware/controlador/diagram.json`.
+> - En este PC no hay terminal remota (VS Code solo admite clics): las instalaciones las ejecuta el usuario.
+> - Pendiente: armar fases 1–7, calibrar sondas, confirmar el tipo de pantalla de la CYD, comprar el 3er DHT22 y confirmar si existen los DS18B20 y las LDR del prototipo antiguo.
+
 > **Actualización 2026-10-27 (madrugada):** pruebas "reales" en línea.
 > - Migración 0004 (dispositivo `controlador`) **aplicada** en Supabase; creados `esp32-controlador-01` y `wokwi-controlador-01` (D-012).
 > - Nuevo `firmware/controlador/` v1. **Compilado de verdad** con arduino-cli y el núcleo ESP32 3.0.7 (modo placa y modo Wokwi), igual que las pruebas 03, 04 y 05.

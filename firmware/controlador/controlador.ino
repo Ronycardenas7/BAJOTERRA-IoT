@@ -56,6 +56,12 @@ struct EstadoZona {
   unsigned long bombaManualHasta = 0;
   // Hasta cuándo el ventilador está en modo manual; 0 = automático.
   unsigned long ventiladorManualHasta = 0;
+  // Humedad del suelo al empezar el último riego automático (NAN = no hay riego en curso que evaluar).
+  float sueloInicioRiego = NAN;
+  // Riegos automáticos seguidos en que el suelo no mejoró.
+  int ciclosSinMejora = 0;
+  // Hasta cuándo el riego automático está bloqueado por seguridad; 0 = no bloqueado.
+  unsigned long riegoBloqueadoHasta = 0;
 };
 
 // Estado de las 3 zonas.
@@ -175,8 +181,8 @@ void leerSensores() {
       int crudo = suma / 16;
       // Lo guarda para depurar.
       estado[z].crudoSuelo = crudo;
-      // Valores pegados al extremo (< 50 o > 4080) indican sonda desconectada o en corto: sin dato (no se riega).
-      if (crudo < 50 || crudo > 4080) {
+      // Valores pegados al extremo indican sonda desconectada, en corto o fuera de la tierra: sin dato (no se riega).
+      if (crudo < SUELO_CRUDO_MIN || crudo > SUELO_CRUDO_MAX) {
         // Sin dato.
         estado[z].humedadSuelo = NAN;
       } else {
@@ -206,6 +212,39 @@ bool vigente(unsigned long hasta) {
   return hasta != 0 && (long)(hasta - millis()) > 0;
 }
 
+// Intenta un riego automático en la zona z, con protección contra inundación.
+void iniciarRiegoAutomatico(int z) {
+  // Configuración y estado de la zona.
+  const ConfigZona& c = ZONAS[z];
+  // Estado.
+  EstadoZona& e = estado[z];
+  // La bomba aún descansa del riego anterior: se espera (no cuenta como ciclo).
+  if ((long)(releDescansoHasta[c.releBomba] - millis()) > 0) return;
+  // Si ya hubo un riego antes, ¿subió el suelo desde entonces?
+  if (!isnan(e.sueloInicioRiego)) {
+    // No subió lo suficiente: un ciclo más sin mejora.
+    if (e.humedadSuelo < e.sueloInicioRiego + MEJORA_MINIMA) e.ciclosSinMejora++;
+    // Sí subió: se reinicia la cuenta.
+    else e.ciclosSinMejora = 0;
+  }
+  // Demasiados riegos sin efecto: bloquea la bomba y avisa.
+  if (e.ciclosSinMejora >= MAX_CICLOS_SIN_MEJORA) {
+    // Bloqueo por 1 hora.
+    e.riegoBloqueadoHasta = millis() + BLOQUEO_RIEGO_MS;
+    // Reinicia la cuenta para cuando termine el bloqueo.
+    e.ciclosSinMejora = 0;
+    // Olvida el punto de partida.
+    e.sueloInicioRiego = NAN;
+    // Aviso en el Monitor Serie.
+    Serial.printf("[ALERTA] %s: %d riegos sin que suba el suelo. Bomba BLOQUEADA 1 h (revisa sonda, manguera y deposito)\n", c.nombre, MAX_CICLOS_SIN_MEJORA);
+    return;
+  }
+  // Anota la humedad de partida de este riego.
+  e.sueloInicioRiego = e.humedadSuelo;
+  // Enciende la bomba (se apagará sola a los BOMBA_MAX_MS como máximo).
+  cambiarRele(c.releBomba, true, "suelo seco (automatico)");
+}
+
 // Decide bomba y ventilador de cada zona que esté en automático.
 void controlar() {
   // Recorre las zonas.
@@ -221,11 +260,15 @@ void controlar() {
       if (isnan(e.humedadSuelo)) {
         cambiarRele(c.releBomba, false, "sin dato de suelo");
       } else if (e.humedadSuelo < c.sueloEncender) {
-        // Suelo seco: intenta regar (si la bomba está descansando, esperará).
-        cambiarRele(c.releBomba, true, "suelo seco (automatico)");
+        // Suelo seco: intenta un riego, salvo que esté bloqueado o ya esté regando.
+        if (!releEncendido[c.releBomba] && !vigente(e.riegoBloqueadoHasta)) iniciarRiegoAutomatico(z);
       } else if (e.humedadSuelo >= c.sueloApagar) {
         // Suelo suficientemente húmedo: deja de regar.
         cambiarRele(c.releBomba, false, "suelo humedo (automatico)");
+        // El riego funcionó: se reinicia la protección.
+        e.ciclosSinMejora = 0;
+        // No hay riego que evaluar.
+        e.sueloInicioRiego = NAN;
       }
       // Entre ambos umbrales se mantiene como está (histéresis).
     }

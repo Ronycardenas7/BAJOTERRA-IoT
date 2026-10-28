@@ -98,7 +98,7 @@ BAJOTERRA-IoT/
 │   │       └── errores.py         Respuestas de error con formato común
 │   └── tests/                     Pruebas automáticas del backend (pytest)
 │
-├── simulador/                     Reemplaza al ESP32 mientras no hay hardware: genera datos SIMULADOS
+├── simulador/                     Genera datos SIMULADOS de las 3 zonas (para probar la web sin la placa)
 │   ├── sim/
 │   │   ├── __main__.py            Permite ejecutar "python -m sim"
 │   │   ├── main.py                Crea las 3 zonas y el depósito y publica cada pocos segundos
@@ -168,6 +168,9 @@ BAJOTERRA-IoT/
 │   │   ├── config.h               Pines, zonas, umbrales y tiempos
 │   │   ├── secretos.ejemplo.h     Plantilla de secretos.h (no se sube)
 │   │   └── diagram.json, libraries.txt  Circuito y bibliotecas para Wokwi
+│   ├── pantalla/                  Firmware final de la CYD: muestra las 3 zonas que llegan por UART (GPIO 22)
+│   │   ├── pantalla.ino           Programa principal
+│   │   └── config_pantalla.h      Tipo de pantalla (ILI9341/ST7789), colores invertidos, pines y tiempos
 │   ├── prueba_01_wifi/
 │   │   ├── prueba_01_wifi.ino     Prueba 01: WiFi + hora UTC por internet
 │   │   ├── secretos.ejemplo.h     Plantilla de credenciales WiFi (copiar como secretos.h)
@@ -191,7 +194,8 @@ BAJOTERRA-IoT/
     ├── estado-actual.md           Qué está hecho, qué se verificó y qué falta
     ├── mqtt-topics.md             Contrato de mensajes: temas, campos, unidades y rangos
     ├── tiempo-real.md             Cómo llegarán los datos del ESP32 a cualquier dispositivo
-    └── plan-hardware.md           Inventario, pines, cableado, alimentación y fases con el hardware real
+    ├── plan-hardware.md           Inventario, pines, cableado, alimentación y fases con el hardware real
+    └── guia-armado.md             Guía paso a paso para armar y probar el hardware (tablas de cables por zona)
 ```
 
 ## Carpetas que se crean solas (no se suben a Git)

@@ -1,0 +1,4 @@
+# Bibliotecas que Wokwi debe instalar para la pantalla.
+Adafruit GFX Library
+Adafruit ILI9341
+ArduinoJson

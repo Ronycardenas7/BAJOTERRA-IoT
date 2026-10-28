@@ -8,7 +8,8 @@ Código C++ (Arduino) de las placas ESP32. Se avanza con **pruebas pequeñas**, 
 | `prueba_01_wifi/` | Conexión WiFi, IP, señal y hora UTC por internet (NTP) | Escrita; no compilada en el entorno de desarrollo. Compílala tú en Wokwi o Arduino IDE. |
 | `prueba_03_sensores/` | **DevKit**: DHT22 y 3 sondas de suelo (con calibración seco/agua) en el Monitor Serie | **Compilada** (núcleo ESP32 3.0.7); falta probar en la placa |
 | `prueba_04_reles/` | **DevKit**: relés de 2 bombas y 2 ventiladores, menú por Monitor Serie, bombas con límite de 10 s | **Compilada** (núcleo ESP32 3.0.7); falta probar en la placa |
-| `prueba_05_pantalla_cyd/` | **CYD (ESP32-2432S028)**: pantalla con las 3 zonas (valores de ejemplo), LDR integrado y recepción UART en GPIO 35 | **Compilada** (núcleo ESP32 3.0.7); falta probar en la placa |
+| `pantalla/` | **Firmware final de la CYD (v1)**: recibe el JSON del controlador por UART (GPIO 22) y muestra las 3 zonas rotando, con aviso de datos viejos y "SIMULADO" | **Compilado** (ILI9341 y ST7789); falta probar en la placa |
+| `prueba_05_pantalla_cyd/` | **CYD (ESP32-2432S028)**: pantalla con las 3 zonas (valores de ejemplo), LDR integrado y recepción UART en GPIO 22 | **Compilada** (núcleo ESP32 3.0.7); falta probar en la placa |
 | `prueba_02_supabase/` | Envía lecturas a Supabase por HTTPS cada 15 s y recibe órdenes cada 5 s (el LED integrado hace de "luces LED") | Escrita; sintaxis y lógica revisadas en PC; **no compilada** para ESP32 |
 
 ## Controlador v1 (`controlador/`)
@@ -23,7 +24,7 @@ Un solo programa para la ESP32 DevKit que maneja las 3 zonas. Archivos:
 | `diagram.json`, `libraries.txt` | Circuito y bibliotecas para Wokwi |
 
 **Reglas de control (valores de prueba, no agronómicos):** húmeda riega bajo 55 % hasta 70 %; selvática riega bajo 60 % hasta 75 %; la árida no tiene bomba. Ventilador 1 (árida) sobre 35 °C o 40 % HR; ventilador 2 (selvática) sobre 30 °C o 95 % HR.
-**Seguridad:** una bomba nunca pasa de 20 s seguidos y luego descansa 30 s; sin dato de suelo **no riega**; una orden de la web deja ese actuador en manual 2 min.
+**Seguridad:** una bomba nunca pasa de 20 s seguidos y luego descansa 30 s; sin dato de suelo **no riega**; si 3 riegos seguidos no suben el suelo, la bomba se bloquea 1 h; una orden de la web deja ese actuador en manual 2 min.
 
 ### En Wokwi (simulación)
 
@@ -38,6 +39,19 @@ Un solo programa para la ESP32 DevKit que maneja las 3 zonas. Archivos:
 1. Copia `secretos.ejemplo.h` como `secretos.h` (o usa el que ya está en tu PC) y escribe tu WiFi de 2,4 GHz. **No** definas `MODO_WOKWI`.
 2. Calibra las sondas con la prueba 03 y pon los valores en `config.h` (`SUELO_SECO`, `SUELO_MOJADO`).
 3. Placa **ESP32 Dev Module**, sube el programa y abre el Monitor Serie a 115200.
+
+## Pantalla v1 (`pantalla/`)
+
+Programa final de la CYD. Archivos: `pantalla.ino` y `config_pantalla.h` (tipo de pantalla, colores invertidos, pines y tiempos).
+
+- Recibe por **GPIO 22** la línea JSON que el controlador envía cada 2 s por su GPIO 17 (más GND común).
+- Muestra una zona cada 4 s (árida → húmeda → selvática): temperatura, humedad del aire y del suelo, y bomba/ventilador en verde (ON), rojo (OFF) o gris (la zona no lo tiene).
+- Si pasan 10 s sin datos, escribe **"SIN DATOS NUEVOS"**, pinta los valores en gris y el LED de la placa se pone rojo.
+- Para probarla sin la DevKit, abre el Monitor Serie y pega una línea como:
+  `{"wifi":true,"origen":"simulado","zonas":[{"n":"arida","t":31.2,"ha":35,"hs":40,"b":null,"v":"apagado","m":false}]}`
+- **Pantalla en blanco:** pon `PANTALLA_ST7789 1` en `config_pantalla.h` e instala "Adafruit ST7735 and ST7789 Library". **Colores en negativo:** `INVERTIR_COLORES 0`.
+
+Cómo conectar todo en físico: **[docs/guia-armado.md](../docs/guia-armado.md)**.
 
 ## Opción A: probar sin placa, en Wokwi (navegador, sin instalar nada)
 

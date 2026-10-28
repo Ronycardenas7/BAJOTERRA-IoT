@@ -4,7 +4,7 @@
 // Qué hace:
 //   - Dibuja la pantalla del invernadero: título y una tarjeta por zona (árida, húmeda, selvática) con valores de ejemplo.
 //   - Lee el sensor de luz (LDR) que trae la placa en GPIO 34 y lo muestra.
-//   - Escucha el UART en GPIO 35 (conector P3) y muestra la última línea recibida: así se prueba el cable que vendrá
+//   - Escucha el UART en GPIO 22 (conector P3 o CN1, el mismo pin del código antiguo del equipo) y muestra la última línea recibida: así se prueba el cable que vendrá
 //     desde la ESP32 DevKit (en esta prueba los valores de las zonas son FIJOS, de ejemplo).
 //
 // Placa en Arduino IDE: "ESP32 Dev Module". Bibliotecas: "Adafruit ILI9341" y "Adafruit GFX Library".
@@ -28,8 +28,8 @@ const int TFT_LUZ_FONDO = 21;
 const int PIN_LDR = 34;
 // LED RGB integrado (se enciende en LOW): rojo, verde, azul.
 const int LED_R = 4, LED_G = 16, LED_B = 17;
-// UART que recibirá datos de la DevKit: RX en GPIO 35 (conector P3). TX no se usa (-1).
-const int UART_RX = 35;
+// UART que recibirá datos de la DevKit: RX en GPIO 22 (conector P3 o CN1). TX no se usa (-1).
+const int UART_RX = 22;
 
 // Bus HSPI propio para la pantalla.
 SPIClass spiPantalla(HSPI);
@@ -146,7 +146,7 @@ void dibujarDinamico() {
   // Estado del UART: última línea recibida (recortada) o aviso de que no llega nada.
   tft.setCursor(8, 206);
   if (ultimaLinea.length() == 0) {
-    tft.print("UART (GPIO35): sin datos todavia                    ");
+    tft.print("UART (GPIO22): sin datos todavia                    ");
   } else {
     tft.printf("UART: hace %lus                                     ", (millis() - ultimaLineaMs) / 1000);
     tft.setCursor(8, 220);
@@ -163,7 +163,7 @@ void dibujarDinamico() {
 void setup() {
   // Monitor Serie (por el USB de la CYD).
   Serial.begin(115200);
-  // UART2 para recibir de la DevKit: 115200 baudios, 8N1, RX = 35, sin TX.
+  // UART2 para recibir de la DevKit: 115200 baudios, 8N1, RX = 22, sin TX.
   Serial2.begin(115200, SERIAL_8N1, UART_RX, -1);
   // LED RGB apagado (HIGH = apagado).
   pinMode(LED_R, OUTPUT); digitalWrite(LED_R, HIGH);
@@ -178,6 +178,8 @@ void setup() {
   tft.begin();
   // Horizontal (320 x 240).
   tft.setRotation(1);
+  // Colores invertidos: el código antiguo del equipo lo necesitaba en esta placa. Si se ve en negativo, pon false.
+  tft.invertDisplay(true);
   // Dibuja la parte fija.
   dibujarFijo();
   // Resolución analógica de 12 bits para el LDR.

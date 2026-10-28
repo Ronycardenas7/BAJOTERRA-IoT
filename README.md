@@ -1,9 +1,11 @@
 # BAJOTERRA-IoT
 
 Invernadero automatizado con **tres zonas de evaluación independientes** (árida, húmeda y selvática). Este repositorio contiene la base del sistema:
-un **broker MQTT**, un **backend** (Flask), un **simulador** que reemplaza al ESP32 mientras no hay hardware, y una **web** (React) para ver los datos.
+el **firmware** de las placas ESP32 (controlador y pantalla), la base en **Supabase**, una **web** (React) para ver los datos y dar órdenes, un **simulador**
+y el modo local con **broker MQTT** y **backend** (Flask).
 
-> **Todos los datos que muestra hoy el sistema son SIMULADOS.** La web los marca con la etiqueta "SIMULADO". Todavía no hay hardware ni Supabase conectados.
+> **Estado (2026-10-28):** Supabase y la web funcionan; el firmware está compilado y probado en el simulador Wokwi. El armado físico recién empieza:
+> mientras tanto, los datos son **SIMULADOS** y la web los marca así. Guía de armado: **[docs/guia-armado.md](docs/guia-armado.md)**.
 
 ```
  Simulador  --MQTT-->  Mosquitto  --MQTT-->  Backend (Flask)  <--HTTP--  Web (React + nginx)
@@ -137,14 +139,14 @@ Las variables que lee cada programa están en `.env.example` y en `backend/app/c
 | Carpeta | Contenido |
 |---|---|
 | `backend/` | API Flask por capas: `api` → `services` → `repositories`, más `mqtt`, `schemas`, `domain`, `infrastructure`, `config` |
-| `simulador/` | Simula 2 zonas y 1 depósito con modelos simples y control con histéresis |
+| `simulador/` | Simula 3 zonas y 1 depósito con modelos simples y control con histéresis |
 | `web_pwa/` | React + Vite (JavaScript), organizada por funcionalidades |
 | `docker/` | Configuración del broker Mosquitto |
 | `broker_local/` | Broker MQTT en Python para usar **sin Docker** |
 | `scripts/` | `iniciar_local.py`: arranca broker, backend y simulador sin Docker |
-| `supabase/` | Borrador del esquema SQL (**no aplicado**) |
-| `firmware/` | Código del ESP32; primera prueba: `prueba_01_wifi/` (WiFi + hora UTC) |
-| `docs/` | `mqtt-topics.md` (contrato de mensajes), `decisiones.md`, `estado-actual.md` |
+| `supabase/` | Migraciones SQL 0001–0004 (**aplicadas** en el proyecto bajoterra-iot) |
+| `firmware/` | `controlador/` (DevKit), `pantalla/` (CYD) y pruebas pequeñas `prueba_01` a `prueba_05`. Ver `firmware/README.md` |
+| `docs/` | `guia-armado.md`, `plan-hardware.md`, `tiempo-real.md`, `mqtt-topics.md` (contrato de mensajes), `decisiones.md`, `estado-actual.md` |
 
 ## Consumo de memoria
 
@@ -173,5 +175,5 @@ y ejecutando `wsl --shutdown`. En Linux, Docker Engine usa bastante menos que Do
 
 ## Estado y próximos pasos
 
-Ver `docs/estado-actual.md`. En resumen: falta conectar **Supabase** (hoy el backend guarda en memoria), decidir la topología **ESP-NOW** (nodos + gateway o MQTT directo)
-y la del **depósito**, y escribir el firmware del ESP32 cuando haya hardware.
+Ver `docs/estado-actual.md`. En resumen: armar el hardware siguiendo `docs/guia-armado.md`, calibrar las sondas, probar el controlador y la pantalla en las placas reales
+y comprar el tercer DHT22. El modo local (backend Flask) sigue guardando en memoria; el modo principal es Supabase.

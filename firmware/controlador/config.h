@@ -101,10 +101,10 @@ const int NUM_ZONAS = 3;
 #define DHT_SELVATICA 13
 // Placa física.
 #else
-// Valores típicos de la sonda resistiva: AJÚSTALOS con la prueba 03 (modo calibración, tecla c).
+// Valores de la sonda resistiva: AJÚSTALOS con la prueba 03 (modo calibración, tecla c).
 #define SUELO_SECO 4095
-// Valor típico en agua.
-#define SUELO_MOJADO 1500
+// Valor en agua: 1480 es el que usaba el código antiguo del equipo con estas mismas sondas.
+#define SUELO_MOJADO 1480
 // Aún falta comprar el tercer DHT22: sin sensor (-1). Cámbialo a 13 cuando lo conectes.
 #define DHT_SELVATICA -1
 // Fin de la condición.
@@ -119,6 +119,21 @@ const ConfigZona ZONAS[NUM_ZONAS] = {
   // Selvática: DHT22 en 13 (o sin él), suelo en 36, Bomba 2 (relé 1), Ventilador 2 (relé 3). Riega bajo 60 % hasta 75 %.
   {"selvatica", DHT_SELVATICA, 36, SUELO_SECO, SUELO_MOJADO, 1, 3, 60.0f, 75.0f, 30.0f, 95.0f},
 };
+
+// Lecturas crudas fuera de [SUELO_CRUDO_MIN, SUELO_CRUDO_MAX] se toman como "sonda desconectada o fuera
+// de la tierra" y NO se riega. Si tu tierra seca de verdad lee más de 4080, sube SUELO_CRUDO_MAX a 4094.
+const int SUELO_CRUDO_MIN = 50;
+// Máximo válido.
+const int SUELO_CRUDO_MAX = 4080;
+
+// Protección contra inundación: si después de regar el suelo no sube al menos MEJORA_MINIMA puntos,
+// se cuenta un "ciclo sin mejora". Con MAX_CICLOS_SIN_MEJORA seguidos, la bomba se bloquea BLOQUEO_RIEGO_MS
+// (por ejemplo: sonda fuera de la maceta, manguera suelta o depósito vacío).
+const float MEJORA_MINIMA = 3.0f;
+// Ciclos seguidos sin mejora antes de bloquear.
+const int MAX_CICLOS_SIN_MEJORA = 3;
+// Duración del bloqueo (1 hora). Reiniciar la placa también lo quita.
+const unsigned long BLOQUEO_RIEGO_MS = 3600000UL;
 
 // Histéresis del ventilador: se apaga cuando la temperatura baja 1 °C del máximo ...
 const float HISTERESIS_TEMPERATURA = 1.0f;

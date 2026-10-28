@@ -1,6 +1,7 @@
 # Plan de hardware — BAJOTERRA (3 zonas)
 
 Plan de trabajo con el hardware **real** que tiene el equipo (revisado con fotos el 2026-10-27).
+Para armarlo paso a paso, con tablas de cables y pruebas por fase: **[guia-armado.md](guia-armado.md)**.
 Sin sensores inalámbricos: todo va **con cable** a dos placas ESP32.
 
 ## 1. Inventario
@@ -43,6 +44,8 @@ Sensores ──cable──► ESP32 DevKit (controlador) ──WiFi/HTTPS──�
 
 Si prefieres otra repartición (por ejemplo, una bomba en la árida), solo cambia la tabla de configuración del firmware.
 
+**Por confirmar:** el código antiguo del equipo usaba sensores DS18B20 (temperatura) y fotorresistencias (LDR) por cultivo. Si todavía existen, pueden sumarse (un DS18B20 cubriría la temperatura de la selvática mientras falta el DHT22).
+
 ## 4. Pines
 
 ### ESP32 DevKit (controlador)
@@ -63,7 +66,7 @@ Si prefieres otra repartición (por ejemplo, una bomba en la árida), solo cambi
 
 | Función | GPIO | Dónde |
 |---|---|---|
-| UART RX desde la DevKit | 35 | Conector **P3** (orden: GND, IO35, IO22, IO21) |
+| UART RX desde la DevKit | 22 | Conector **CN1** (GND, IO22, IO27, 3.3V) o **P3** (GND, IO35, IO22, IO21). Es el pin que usaba el código antiguo del equipo |
 | Pantalla (ILI9341, bus HSPI) | SCK 14, MOSI 13, MISO 12, CS 15, DC 2, luz de fondo 21 | Interno |
 | Sensor de luz (LDR) | 34 | Interno |
 | LED RGB (se enciende en LOW) | R 4, G 16, B 17 | Interno |
@@ -85,7 +88,7 @@ Algunas placas CYD nuevas ("v3", con dos puertos USB) usan el controlador **ST77
 | 1 | `firmware/prueba_03_sensores/` | DHT22 y sondas de suelo con calibración (seco y en agua), en el Monitor Serie | Compilado; falta probar en la placa |
 | 2 | `firmware/prueba_04_reles/` | Cada relé, ventilador y bomba, uno por uno, con límite de tiempo | Compilado; falta probar en la placa |
 | 3 | `firmware/prueba_05_pantalla_cyd/` | Pantalla de la CYD con las 3 zonas y el LDR | Compilado; falta probar en la placa |
-| 4 | `firmware/controlador/` + `firmware/pantalla/` | Control automático por zona + UART DevKit → CYD (sin internet) | Controlador v1 compilado y probado en Wokwi; pantalla pendiente |
+| 4 | `firmware/controlador/` + `firmware/pantalla/` | Control automático por zona + UART DevKit → CYD (sin internet) | Ambos compilados; controlador probado en Wokwi; falta la placa real |
 | 5 | (mismo) | + envío de lecturas **reales** a Supabase y órdenes desde la web | Código listo (dispositivo `controlador`, migración 0004); falta probar |
 | 6 | web y Supabase | Mostrar solo sensores existentes, luz en %, la placa reporta 3 zonas | Pendiente |
 | 7 | — | Funcionamiento continuo 24 h (estabilidad, agua, reinicios) | Pendiente |

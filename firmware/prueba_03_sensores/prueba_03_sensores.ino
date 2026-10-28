@@ -47,9 +47,9 @@ struct Zona {
 // Tabla de zonas. La selvática no tiene DHT22 hasta comprar el tercero (pinDht = -1; cuando lo tengas, pon 13).
 Zona ZONAS[] = {
   // nombre,      DHT, suelo, seco, mojado
-  {"arida",        4,   34,   4095, 1500},
-  {"humeda",      16,   35,   4095, 1500},
-  {"selvatica",   -1,   36,   4095, 1500},
+  {"arida",        4,   34,   4095, 1480},
+  {"humeda",      16,   35,   4095, 1480},
+  {"selvatica",   -1,   36,   4095, 1480},
 };
 // Cantidad de zonas (calculada a partir de la tabla).
 const int N_ZONAS = sizeof(ZONAS) / sizeof(ZONAS[0]);
