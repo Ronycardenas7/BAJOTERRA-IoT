@@ -37,12 +37,23 @@ export default function PanelActuadores({ zona, actuadores, modo, habilitado, mo
   // Devuelve el panel.
   return (
     <div className="actuadores">
-      {/* Encabezado del panel con el modo de la zona. */}
-      <div className="actuadores__titulo">
+      {/* Encabezado del panel con el modo de la zona y botón para alternarlo. */}
+      <div className="actuadores__titulo" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
         {/* Título. */}
         <h3>Actuadores</h3>
-        {/* Modo reportado por el dispositivo. */}
-        <Etiqueta tono="neutro">Modo: {modo === "manual" ? "manual" : modo === "automatico" ? "automático" : "sin dato"}</Etiqueta>
+        {/* Modo reportado por el dispositivo y botón para alternar. */}
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <Etiqueta tono={modo === "manual" ? "aviso" : "neutro"}>Modo: {modo === "manual" ? "manual" : modo === "automatico" ? "automático" : "sin dato"}</Etiqueta>
+          <button
+            type="button"
+            disabled={bloqueado}
+            onClick={() => enviar("modo", modo === "manual" ? "automatico" : "manual")}
+            title="Cambiar modo de control de la zona"
+            style={{ padding: "4px 8px", fontSize: "0.75rem", cursor: "pointer" }}
+          >
+            {modo === "manual" ? "Pasar a Auto" : "Pasar a Manual"}
+          </button>
+        </div>
       </div>
       {/* Una fila por actuador. */}
       {ACTUADORES.map(({ id, icono }) => (
@@ -75,6 +86,27 @@ export default function PanelActuadores({ zona, actuadores, modo, habilitado, mo
           </div>
         </div>
       ))}
+      {/* Control de Temperatura Objetivo (TOBJ) para el algoritmo PI del Maestro. */}
+      <div className="actuador" key="tobj">
+        <div className="actuador__nombre">
+          <Icono nombre="termometro" tamano={20} />
+          <div>
+            <strong>Temp. Objetivo (TOBJ)</strong>
+            <span className="actuador__estado">Ajustar consigna del ventilador</span>
+          </div>
+        </div>
+        <div className="actuador__botones" style={{ display: "flex", gap: "4px" }}>
+          <button type="button" disabled={bloqueado} onClick={() => enviar("TOBJ", "22.0")} title="Ajustar consigna a 22.0 °C">
+            22°C
+          </button>
+          <button type="button" disabled={bloqueado} onClick={() => enviar("TOBJ", "24.0")} title="Ajustar consigna a 24.0 °C">
+            24°C
+          </button>
+          <button type="button" disabled={bloqueado} onClick={() => enviar("TOBJ", "26.0")} title="Ajustar consigna a 26.0 °C">
+            26°C
+          </button>
+        </div>
+      </div>
       {/* Si los botones están bloqueados por falta de datos frescos, se explica el motivo. */}
       {!habilitado && <p className="actuadores__nota">Órdenes bloqueadas: {motivo}</p>}
       {/* Resultado de la última orden, con su tono. */}

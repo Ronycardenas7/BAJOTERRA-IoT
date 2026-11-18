@@ -95,7 +95,17 @@ export function describirComando(comando) {
   // Sin comando no hay texto.
   if (!comando) return null;
   // Verbo según lo pedido.
-  const accion = `${comando.estado_solicitado === "encendido" ? "Encender" : "Apagar"} ${NOMBRES_ACTUADOR[comando.actuador] ?? comando.actuador}`;
+  let accion;
+  if (comando.actuador === "modo") {
+    // Cambio de modo de control.
+    accion = `Cambiar modo a ${comando.estado_solicitado}`;
+  } else if (comando.actuador === "TOBJ" || comando.actuador === "setpoint") {
+    // Cambio de objetivo de temperatura.
+    accion = `Fijar temperatura objetivo en ${comando.estado_solicitado} °C`;
+  } else {
+    // Actuadores de encendido/apagado estándar.
+    accion = `${comando.estado_solicitado === "encendido" ? "Encender" : "Apagar"} ${NOMBRES_ACTUADOR[comando.actuador] ?? comando.actuador}`;
+  }
   // Texto según la etapa del comando.
   switch (comando.estado) {
     // Entregada al broker; falta que el dispositivo responda.
