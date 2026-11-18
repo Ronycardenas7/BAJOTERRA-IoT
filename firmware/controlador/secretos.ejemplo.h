@@ -1,22 +1,22 @@
-// Plantilla de credenciales del controlador. Copia este archivo como "secretos.h" y completa los datos.
-// secretos.h está en .gitignore: NUNCA se sube a GitHub.
+// ============================================================================
+// BAJOTERRA - Plantilla de credenciales privadas del Maestro ESP32 (v3.0).
+// Copia este archivo como "secretos.h" y completa con tus datos reales.
+// "secretos.h" está en .gitignore y NUNCA se sube a GitHub.
+// ============================================================================
+#pragma once
 
-// Descomenta la línea siguiente SOLO para la simulación en Wokwi (datos simulados, relés en HIGH).
-// #define MODO_WOKWI 1
+// Credenciales de la red Wi-Fi (debe ser red de 2,4 GHz).
+#define WIFI_SSID_VAL "nombre-de-tu-red-2.4G"
+#define WIFI_PASS_VAL "clave-de-tu-red"
 
-// Red WiFi de 2,4 GHz (en Wokwi usa "Wokwi-GUEST" y clave vacía "").
-#define WIFI_SSID "nombre-de-tu-red"
-// Clave del WiFi.
-#define WIFI_CLAVE "clave-de-tu-red"
+// Dirección del proyecto en Supabase (sin barra '/' al final).
+#define SUPABASE_URL_VAL "https://tu-proyecto.supabase.co"
 
-// Proyecto de Supabase. La clave PUBLICABLE no es secreta, pero se deja aquí para tenerla junta.
-#define SUPABASE_URL "https://tu-proyecto.supabase.co"
-// Clave publicable (sb_publishable_...).
-#define SUPABASE_PUBLISHABLE_KEY "sb_publishable_xxxxxxxxxxxxxxxx"
+// Clave publicable anon de Supabase (la misma de web_pwa/src/config/nube.js).
+#define SUPABASE_KEY_VAL "sb_publishable_tu_clave_publicable"
 
-// Identidad del dispositivo (tipo "controlador", migración 0004). Se crea en Supabase > SQL Editor con
-//   select privado.crear_dispositivo('esp32-controlador-01', 'controlador', null, 'ESP32 DevKit controlador');
-// La consulta devuelve la clave UNA sola vez: cópiala aquí.
-#define DISPOSITIVO_ID "esp32-controlador-01"
-// Clave secreta del dispositivo.
-#define DISPOSITIVO_CLAVE "bjt_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+// Identificador del dispositivo en la tabla dispositivos de Supabase.
+#define DISPOSITIVO_ID_VAL "esp32-controlador-01"
+
+// Clave secreta del dispositivo controlador (generada con privado.crear_dispositivo).
+#define CLAVE_DISPOSITIVO_VAL "bjt_tu_clave_secreta_aqui"

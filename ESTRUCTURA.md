@@ -163,20 +163,20 @@ BAJOTERRA-IoT/
 │
 ├── firmware/                      Código del ESP32 (Arduino C++)
 │   ├── README.md                  Cómo probar en Wokwi o en una placa real
-│   ├── controlador/               Firmware principal v1 de la DevKit (3 zonas, control local, nube, UART a la CYD)
-│   │   ├── controlador.ino        Programa principal
-│   │   ├── config.h               Pines, zonas, umbrales y tiempos
-│   │   ├── secretos.ejemplo.h     Plantilla de secretos.h (no se sube)
-│   │   └── diagram.json, libraries.txt  Circuito y bibliotecas para Wokwi
-│   ├── pantalla/                  Firmware final de la CYD: muestra las 3 zonas que llegan por UART (GPIO 22)
-│   │   ├── pantalla.ino           Programa principal
-│   │   └── config_pantalla.h      Tipo de pantalla (ILI9341/ST7789), colores invertidos, pines y tiempos
+│   ├── controlador/               Firmware del ESP32 Maestro v3.0 (dual-core, ESP-NOW, PI, 6 relés, Supabase, UART)
+│   │   ├── maestro.ino            Programa principal del Maestro
+│   │   ├── secretos.ejemplo.h     Plantilla de secretos.h (WiFi y Supabase; no se sube a Git)
+│   │   └── secretos.h             Credenciales reales (ignorado por Git)
+│   ├── nodo/                      Firmware de los 3 Nodos sensores ESP-NOW v3.0
+│   │   └── nodo.ino               Programa común para los 3 nodos (DHT22 en GPIO 4, suelo en 34 con VCC en 25)
+│   ├── pantalla/                  Firmware v3.1 de la CYD táctil (TFT_eSPI + XPT2046, UART bidireccional IO22/IO27)
+│   │   └── pantalla.ino           Programa táctil de la pantalla
 │   ├── prueba_01_wifi/
 │   │   ├── prueba_01_wifi.ino     Prueba 01: WiFi + hora UTC por internet
 │   │   ├── secretos.ejemplo.h     Plantilla de credenciales WiFi (copiar como secretos.h)
 │   │   └── diagram.json           Circuito para el simulador Wokwi
 │   ├── prueba_03_sensores/        Prueba 03 (DevKit): DHT22 + 3 sondas de suelo con calibración
-│   ├── prueba_04_reles/           Prueba 04 (DevKit): 4 relés (2 bombas, 2 ventiladores) con límites de seguridad
+│   ├── prueba_04_reles/           Prueba 04 (DevKit): relés con límites de seguridad
 │   ├── prueba_05_pantalla_cyd/    Prueba 05 (CYD ESP32-2432S028): pantalla con las 3 zonas, LDR y UART
 │   └── prueba_02_supabase/
 │       ├── prueba_02_supabase.ino Prueba 02: lecturas a Supabase por HTTPS y órdenes (LED = luces)

@@ -1,11 +1,13 @@
 # BAJOTERRA-IoT
 
-Invernadero automatizado con **tres zonas de evaluación independientes** (árida, húmeda y selvática). Este repositorio contiene la base del sistema:
-el **firmware** de las placas ESP32 (controlador y pantalla), la base en **Supabase**, una **web** (React) para ver los datos y dar órdenes, un **simulador**
-y el modo local con **broker MQTT** y **backend** (Flask).
+Invernadero automatizado con **tres zonas de evaluación independientes** (árida, húmeda y selvática) bajo una arquitectura distribuida **v3.0**:
+- **3 Nodos inalámbricos ESP-NOW** (`firmware/nodo/`): leen DHT22 y humedad de suelo en cada zona y transmiten periódicamente sin cables hacia el Maestro.
+- **1 ESP32 Maestro dual-core** (`firmware/controlador/`): ejecuta control PI de ventilación, riego por pulsos con alarma contra fallos, conmuta 6 relés, envía telemetría por HTTPS a Supabase y se comunica bidireccionalmente por UART con la pantalla.
+- **1 Pantalla CYD táctil ESP32-2432S028** (`firmware/pantalla/`): interfaz gráfica con `TFT_eSPI` y panel táctil XPT2046 para monitoreo local y comandos manuales (UART IO22 RX / IO27 TX).
+- **Base de datos (Supabase)** y **Web PWA (React 19 + Vite 8)**: supervisión remota en tiempo real y envío de órdenes por operadores autorizados.
 
-> **Estado (2026-10-28):** Supabase y la web funcionan; el firmware está compilado y probado en el simulador Wokwi. El armado físico recién empieza:
-> mientras tanto, los datos son **SIMULADOS** y la web los marca así. Guía de armado: **[docs/guia-armado.md](docs/guia-armado.md)**.
+> **Arquitectura actual (v3.0):** Nodos ESP-NOW → ESP32 Maestro (6 relés) ↔ Pantalla CYD táctil (UART bidireccional) + HTTPS directo a Supabase.
+> Guía de armado y cableado: **[docs/guia-armado.md](docs/guia-armado.md)**.
 
 ```
  Simulador  --MQTT-->  Mosquitto  --MQTT-->  Backend (Flask)  <--HTTP--  Web (React + nginx)

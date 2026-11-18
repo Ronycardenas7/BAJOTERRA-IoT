@@ -31,29 +31,28 @@ Contexto: aridez y escasez de agua de la región de Tarapacá (Iquique, Universi
 Nunca presentar datos simulados como mediciones reales.
 Problemas históricos: reinicios al arrancar bombas, caídas de tensión, ruido inductivo, corrosión de sensores resistivos y dependencia de un PC encendido.
 
-Hardware disponible (fotos revisadas el 2026-10-27; detalle en docs/plan-hardware.md y docs/guia-armado.md)
-- ESP32 DevKit = controlador (sensores, relés, nube). ESP32-2432S028 "CYD" = pantalla, recibe por UART (DevKit GPIO 17 → CYD GPIO 22).
-- 2 DHT22 (falta 1 para la selvática), 3 sondas de suelo resistivas con LM393, 2 mini-bombas 5 V, 2 ventiladores 5 V, módulo de 4 relés, fuente MB102.
-- Sin sensores inalámbricos: todo va con cable. Sin sensor de luz por zona, CO₂, radiación ni conductividad: se envían como null.
-- El montaje físico está por empezar (2026-10-28). El controlador está compilado y simulado en Wokwi; nada se ha probado en la placa real.
+Hardware y arquitectura distribuida v3.0 (adoptada en noviembre 2026; sustituye al esquema cableado de 1 placa con 4 relés)
+- 3 Nodos ESP-NOW independientes (firmware/nodo/): 1 módulo por zona (árida, húmeda/templada, selvática). Cada nodo lee DHT22 (GPIO 4) y sonda de suelo (GPIO 34 alimentada por GPIO 25 para evitar electrólisis) y transmite por ESP-NOW al Maestro cada 2 s.
+- 1 ESP32 Maestro dual-core (firmware/controlador/): Núcleo 1 ejecuta el control autónomo (lazo PI de ventilación sobre temperatura, riego por pulsos con histéresis y alarma de fallo) y UART bidireccional hacia la pantalla. Núcleo 0 gestiona la red Wi-Fi, hora NTP y telemetría/órdenes HTTPS directas con Supabase. Controla 6 relés (pines 33, 25, 26, 27, 14, 13) para bombas y ventiladores de las 3 zonas.
+- 1 Pantalla CYD táctil ESP32-2432S028 (firmware/pantalla/ v3.1): Pantalla TFT_eSPI con controlador táctil XPT2046. Enlace UART bidireccional con el Maestro: Maestro TX GPIO 17 → Pantalla RX IO22 (telemetría de zonas), Pantalla TX IO27 → Maestro RX GPIO 16 (comandos táctiles de modo, actuadores y temperatura objetivo TOBJ).
+- Sin sensor de luz por zona, CO₂, radiación ni conductividad: viajan como null ("Sin dato" en la web).
 
 Stack y arquitectura acordados
 - Frontend: React + Vite, JavaScript, HTML y CSS; responsive. PWA es un objetivo (hay manifiesto, no service worker).
-- Nube (modo principal, D-010): el ESP32 envía por HTTPS a funciones RPC de Supabase (registrar_lectura, comandos_pendientes,
+- Nube (modo principal, D-010): el ESP32 Maestro envía por HTTPS a funciones RPC de Supabase (registrar_lectura, comandos_pendientes,
   confirmar_comando) con una clave por dispositivo guardada como hash. La web usa supabase-js, Realtime e inicio de sesión;
   solo los "operadores" pueden enviar órdenes. Proyecto Supabase: bajoterra-iot (sa-east-1, plan gratuito).
-- Un solo dispositivo tipo "controlador" escribe las 3 zonas (D-012, migración 0004).
+- Dispositivo tipo "controlador" escribe las 3 zonas (D-012, migración 0004 y 0005).
 - Modo local (desarrollo sin internet): Python + Flask por capas, broker MQTT (Mosquitto o broker_local) y simulador. Se conserva, no es el principal.
 - Simulador: Python, 3 zonas y 1 depósito, modo MQTT o modo nube (python -m sim.nube).
-- Firmware: C/C++ del entorno Arduino, núcleo ESP32 3.x. Control local primero (funciona sin internet), millis() en vez de delay largos.
-- ESP-NOW (del anteproyecto) quedó sin uso: no hay nodos inalámbricos.
+- Firmware: C/C++ del entorno Arduino, núcleo ESP32 3.x. Control distribuido con ESP-NOW entre nodos y Maestro, y UART bidireccional con pantalla CYD.
 - El código antiguo del equipo (Flask + MySQL + puente serial) fue reemplazado por Supabase; se revisó el 2026-10-28 (D-013).
 
 Organización
 Raíz: web_pwa/, backend/, simulador/, broker_local/, firmware/, docs/, supabase/, scripts/.
 Backend (backend/app/): api/, mqtt/, services/, domain/, repositories/, infrastructure/, schemas/, config/.
 Frontend (web_pwa/src/): app/, pages/, components/, services/, config/, styles/ y features/ (zonas, telemetria, actuadores, sesion).
-Firmware: controlador/ (DevKit), pantalla/ (CYD) y pruebas pequeñas prueba_01 a prueba_05.
+Firmware: controlador/ (Maestro dual-core), nodo/ (Nodos sensores ESP-NOW), pantalla/ (CYD táctil bidireccional) y pruebas de apoyo.
 Crear módulos cuando se necesiten; evitar código vacío o abstracciones innecesarias.
 
 Datos y pantallas
