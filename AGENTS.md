@@ -14,7 +14,7 @@ Forma de trabajo
 - Mantener VS Code, sus extensiones, Git, Node, Python y el kit de herramientas instalado. No reinstalar ni eliminar herramientas globales sin necesidad.
 - Equipos del usuario: Linux Mint con 3,3 GiB de RAM (casa); PC Windows "moniropc"; PCs Windows de la universidad (sin permisos de administrador).
   En Windows, Node se instaló con winget el 2026-10-27 en moniropc; git no está en el PATH (se usa GitHub Desktop).
-- Evitar instalaciones y pruebas simultáneas, dependencias pesadas y procesos innecesarios. Docker es opcional (D-002); el modo principal no lo necesita.
+- Evitar instalaciones y pruebas simultáneas, dependencias pesadas y procesos innecesarios.
 - Trabajar por hitos pequeños y comprobables. No declarar pruebas aprobadas si no se ejecutaron.
 - No cambiar el stack, las zonas o la estructura acordada por iniciativa propia sin explicar la necesidad y acordarlo.
 - Conservar credenciales fuera de Git. No imprimir secretos. Plantillas con valores ficticios (*.ejemplo.*); excluir secretos.h,
@@ -43,14 +43,12 @@ Stack y arquitectura acordados
   confirmar_comando) con una clave por dispositivo guardada como hash. La web usa supabase-js, Realtime e inicio de sesión;
   solo los "operadores" pueden enviar órdenes. Proyecto Supabase: bajoterra-iot (sa-east-1, plan gratuito).
 - Dispositivo tipo "controlador" escribe las 3 zonas (D-012, migración 0004 y 0005).
-- Modo local (desarrollo sin internet): Python + Flask por capas, broker MQTT (Mosquitto o broker_local) y simulador. Se conserva, no es el principal.
-- Simulador: Python, 3 zonas y 1 depósito, modo MQTT o modo nube (python -m sim.nube).
+- Desarrollo y despliegue web: Vite consume Supabase directamente. Vercel sirve el frontend desde `web_pwa/`.
 - Firmware: C/C++ del entorno Arduino, núcleo ESP32 3.x. Control distribuido con ESP-NOW entre nodos y Maestro, y UART bidireccional con pantalla CYD.
 - El código antiguo del equipo (Flask + MySQL + puente serial) fue reemplazado por Supabase; se revisó el 2026-10-28 (D-013).
 
 Organización
-Raíz: web_pwa/, backend/, simulador/, broker_local/, firmware/, docs/, supabase/, scripts/.
-Backend (backend/app/): api/, mqtt/, services/, domain/, repositories/, infrastructure/, schemas/, config/.
+Raíz: web_pwa/, firmware/, docs/, supabase/.
 Frontend (web_pwa/src/): app/, pages/, components/, services/, config/, styles/ y features/ (zonas, telemetria, actuadores, sesion).
 Firmware: controlador/ (Maestro dual-core), nodo/ (Nodos sensores ESP-NOW), pantalla/ (CYD táctil bidireccional) y pruebas de apoyo.
 Crear módulos cuando se necesiten; evitar código vacío o abstracciones innecesarias.

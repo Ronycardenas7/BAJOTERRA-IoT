@@ -18,9 +18,11 @@ function textoAgua(valor) {
 // Props: entrada (lectura y conexión) y unidades.
 export default function TarjetaDeposito({ entrada, unidades }) {
   // Última lectura (puede ser null).
-  const lectura = entrada.lectura;
+  const lectura = entrada?.lectura;
+  // Las mediciones pueden faltar aunque se haya recibido la lectura.
+  const mediciones = lectura?.mediciones;
   // Texto y tono de la conexión.
-  const conexion = describirConexion(entrada.conexion);
+  const conexion = describirConexion(entrada?.conexion);
 
   // Devuelve la tarjeta.
   return (
@@ -57,21 +59,21 @@ export default function TarjetaDeposito({ entrada, unidades }) {
             {/* Nombre. */}
             <dt>{NOMBRES_MEDICION.conductividad_ec}</dt>
             {/* Valor con unidad. */}
-            <dd>{formatearMedicion("conductividad_ec", lectura.mediciones.conductividad_ec, unidades)}</dd>
+            <dd>{formatearMedicion("conductividad_ec", mediciones?.conductividad_ec, unidades)}</dd>
           </div>
           {/* Disponibilidad de agua. */}
           <div className="medida">
             {/* Nombre. */}
             <dt>Agua disponible</dt>
             {/* Sí / No / —. */}
-            <dd>{textoAgua(lectura.mediciones.agua_disponible)}</dd>
+            <dd>{textoAgua(mediciones?.agua_disponible)}</dd>
           </div>
           {/* Nivel en porcentaje: solo si hay un sensor que lo mida. */}
           <div className="medida">
             {/* Nombre. */}
             <dt>{NOMBRES_MEDICION.nivel_agua}</dt>
             {/* Valor o aclaración de que no hay sensor. */}
-            <dd>{typeof lectura.mediciones.nivel_agua === "number" ? formatearMedicion("nivel_agua", lectura.mediciones.nivel_agua, unidades) : "Sin sensor de nivel"}</dd>
+            <dd>{typeof mediciones?.nivel_agua === "number" ? formatearMedicion("nivel_agua", mediciones.nivel_agua, unidades) : "Sin sensor de nivel"}</dd>
           </div>
         </dl>
       ) : (

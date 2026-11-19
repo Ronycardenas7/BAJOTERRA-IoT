@@ -3,8 +3,8 @@
 
 // useEffect ejecuta código cuando algo cambia; useState guarda datos.
 import { useEffect, useState } from "react";
-// Funciones que llaman a la API.
-import { obtenerComando, solicitarComando } from "../../services/api.js";
+// Funciones que crean y consultan órdenes en Supabase.
+import { obtenerComandoNube, solicitarComandoNube } from "../../services/datosNube.js";
 // Ayuda para saber si un comando ya terminó.
 import { comandoTerminado } from "../telemetria/formato.js";
 
@@ -19,7 +19,7 @@ export function useComando(zona) {
   const [comando, setComando] = useState(null);
   // Mensaje de error si no se pudo pedir la orden.
   const [error, setError] = useState(null);
-  // True mientras se espera la respuesta del backend a la solicitud.
+  // True mientras se espera la respuesta de Supabase.
   const [enviando, setEnviando] = useState(false);
   // Hora actual (ms) que se actualiza en cada consulta, para detectar órdenes vencidas.
   const [ahora, setAhora] = useState(Date.now());
@@ -33,41 +33,51 @@ export function useComando(zona) {
   useEffect(() => {
     // Si no hay nada pendiente, no hace nada.
     if (terminado) return undefined;
+    // Evita consultas solapadas y descarta respuestas de una orden que ya no se sigue.
+    let vigente = true;
+    let consultando = false;
     // Programa las consultas periódicas.
     const temporizador = setInterval(async () => {
+      // La caducidad avanza aunque la red se demore.
+      setAhora(Date.now());
+      if (consultando) return;
+      consultando = true;
       // Intenta leer el estado actual de la orden.
       try {
-        // Pregunta al backend por el comando.
-        const { comando: actual } = await obtenerComando(comando.id_comando);
+        // Consulta el estado de la orden en Supabase.
+        const { comando: actual } = await obtenerComandoNube(comando.id_comando);
         // Guarda el estado nuevo.
-        setComando(actual);
+        if (vigente) setComando(actual);
       // Si falla una consulta, se reintenta en el próximo ciclo.
       } catch {
         // Nada que hacer: el estado anterior se conserva.
+      } finally {
+        consultando = false;
       }
-      // Actualiza la hora para detectar vencimientos.
-      setAhora(Date.now());
     }, INTERVALO_MS);
     // Al terminar o cambiar de orden, detiene el temporizador.
-    return () => clearInterval(temporizador);
+    return () => {
+      vigente = false;
+      clearInterval(temporizador);
+    };
   }, [terminado, comando?.id_comando]);
 
-  // Pide una orden al backend.
+  // Pide una orden a Supabase.
   async function enviar(actuador, estado) {
     // Marca que se está enviando y limpia el error anterior.
     setEnviando(true);
     setError(null);
     // Intenta pedir la orden.
     try {
-      // POST al backend.
-      const { comando: nuevo } = await solicitarComando(zona, actuador, estado);
+      // Crea la orden mediante la función RPC de Supabase.
+      const { comando: nuevo } = await solicitarComandoNube(zona, actuador, estado);
       // Guarda la orden para seguirla.
       setComando(nuevo);
       // Reinicia la hora de referencia.
       setAhora(Date.now());
-    // Si el backend rechaza o no responde, muestra el motivo.
+    // Si Supabase rechaza o no responde, muestra el motivo.
     } catch (fallo) {
-      // Mensaje legible del backend.
+      // Mensaje legible para el operador.
       setError(fallo.message);
     // Siempre al terminar:
     } finally {

@@ -112,3 +112,6 @@ El usuario entregó 4 archivos del prototipo anterior ("cerebro", "pantalla", "p
 - Depósito compartido o por zona.
 - Autenticación con Google (hoy: correo y contraseña) y dónde publicar la web (Vercel, Netlify o GitHub Pages).
 - Qué hacer con el "reinicio" de GitHub y Supabase solicitado antes (identificar recursos exactos y respaldar primero).
+## D-015 — Web con Supabase y despliegue en Vercel (2026-11-19)
+
+El ESP32 envía lecturas por HTTPS a Supabase. La web usa Supabase para la sesión, la telemetría y las órdenes, y se despliega en Vercel desde `web_pwa/`. Se retiran Docker, Flask, MQTT y el simulador de software del árbol activo. Las referencias a ese flujo en decisiones anteriores corresponden al historial del proyecto.

@@ -2,48 +2,55 @@
 
 // useEffect escucha cambios de sesión; useState guarda el usuario.
 import { useEffect, useState } from "react";
-// Cliente de Supabase y consulta de permisos.
-import { supabase } from "../../services/supabase.js";
-import { esOperador } from "../../services/datosNube.js";
-
-// Devuelve { usuario, operador, cargando }.
+// Devuelve la sesión y el permiso de control para todas las rutas.
 export function useSesion() {
   // Usuario actual (null sin sesión).
   const [usuario, setUsuario] = useState(null);
-  // true si puede enviar órdenes.
-  const [operador, setOperador] = useState(false);
+  // El permiso queda asociado a la cuenta que se consultó.
+  const [cuentaOperadora, setCuentaOperadora] = useState(null);
   // true hasta saber si hay sesión.
   const [cargando, setCargando] = useState(true);
+  const [errorSesion, setErrorSesion] = useState(false);
 
-  // Al montar: lee la sesión guardada y escucha inicios/cierres de sesión.
+  // Supabase emite INITIAL_SESSION y los cambios posteriores de la sesión.
   useEffect(() => {
-    // Evita actualizar el estado tras desmontar.
-    let activo = true;
-    // Actualiza usuario y permiso.
-    async function aplicar(sesion) {
-      // Usuario de la sesión (o null).
-      const nuevo = sesion?.user ?? null;
-      // Consulta el permiso solo si hay usuario.
-      const permiso = nuevo ? await esOperador(nuevo.id) : false;
-      // Guarda si sigue montado.
-      if (!activo) return;
-      setUsuario(nuevo);
-      setOperador(permiso);
+    let vigente = true;
+    let suscripcion;
+    // Carga el cliente sin incluirlo en el archivo inicial de la portada.
+    import("../../services/supabase.js").then(({ supabase }) => {
+      if (!vigente) return;
+      const { data } = supabase.auth.onAuthStateChange((_evento, sesion) => {
+        if (!vigente) return;
+        setUsuario(sesion?.user ?? null);
+        setCargando(false);
+      });
+      suscripcion = data.subscription;
+    }).catch(() => {
+      if (!vigente) return;
+      setErrorSesion(true);
       setCargando(false);
-    }
-    // Sesión guardada en el navegador.
-    supabase.auth.getSession().then(({ data }) => aplicar(data.session));
-    // Cambios posteriores (login, logout, renovación del token). setTimeout evita llamar a Supabase dentro del aviso.
-    const { data } = supabase.auth.onAuthStateChange((_evento, sesion) => {
-      setTimeout(() => aplicar(sesion), 0);
     });
-    // Limpieza: deja de escuchar.
+    // Mantiene la misma suscripción al cambiar de ruta y la limpia al desmontar.
     return () => {
-      activo = false;
-      data.subscription.unsubscribe();
+      vigente = false;
+      suscripcion?.unsubscribe();
     };
   }, []);
 
+  // Consulta el permiso al cambiar de cuenta y descarta respuestas de una sesión anterior.
+  const cuenta = usuario?.id;
+  useEffect(() => {
+    setCuentaOperadora(null);
+    if (!cuenta) return undefined;
+    let vigente = true;
+    import("../../services/datosNube.js").then(({ esOperador }) => esOperador(cuenta)).then((permiso) => {
+      if (vigente && permiso) setCuentaOperadora(cuenta);
+    }).catch(() => {
+      // Conserva el acceso de solo lectura si la consulta falla.
+    });
+    return () => { vigente = false; };
+  }, [cuenta]);
+
   // Devuelve el estado de la sesión.
-  return { usuario, operador, cargando };
+  return { usuario, operador: Boolean(cuenta) && cuenta === cuentaOperadora, cargando, errorSesion };
 }

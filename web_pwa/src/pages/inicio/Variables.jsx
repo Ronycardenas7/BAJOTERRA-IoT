@@ -1,21 +1,11 @@
-// ============================================================================
-// BAJOTERRA-IoT · Sección Final: Variables Monitoreadas (Círculos Conectados)
-// Inspirada en la fila inferior de iconos de la referencia visual:
-//  - Círculos simétricos con iconos vectoriales limpios en lima y blanco
-//  - Las 6 magnitudes ambientales medidas por el sistema
-// ============================================================================
-
-import React from "react";
-import Icono from "../../components/Iconos.jsx";
-
-// Catálogo de las 6 variables monitoreadas
+// Catálogo de magnitudes. Los SVG locales son de Tabler Icons (licencia MIT).
 const VARIABLES_SISTEMA = [
-  { id: "temperatura", nombre: "Temperatura", icono: "termometro", rango: "−40 a 85 °C" },
-  { id: "humedad-aire", nombre: "Humedad del Aire", icono: "gota", rango: "0 – 100 % HR" },
-  { id: "humedad-sustrato", nombre: "Humedad del Sustrato", icono: "sonda", rango: "0 – 100 %" },
-  { id: "co2", nombre: "CO₂", icono: "nube", rango: "250 – 5000 ppm" },
-  { id: "radiacion-solar", nombre: "Radiación Solar", icono: "sol", rango: "0 – 1500 W/m²" },
-  { id: "conductividad", nombre: "Conductividad", icono: "conductividad", rango: "0 – 20 mS/cm" },
+  { id: "temperatura", nombre: "Temperatura", icono: "temperature", rango: "−40 a 85 °C" },
+  { id: "humedad-aire", nombre: "Humedad del aire", icono: "droplet-half-2", rango: "0 – 100 % HR" },
+  { id: "humedad-sustrato", nombre: "Humedad del sustrato", icono: "plant-2", rango: "0 – 100 %" },
+  { id: "co2", nombre: "CO₂", icono: "atom-2", rango: "Sin sensor" },
+  { id: "radiacion-solar", nombre: "Radiación solar", icono: "sun-high", rango: "Sin sensor" },
+  { id: "conductividad", nombre: "Conductividad", icono: "circuit-resistor", rango: "Sin sensor" },
 ];
 
 export default function Variables() {
@@ -26,31 +16,24 @@ export default function Variables() {
         <div className="seccion-variables-conectadas__cabecera">
           <p className="rotulo-lima">Variables Ambientales</p>
           <h2 id="titulo-variables" className="seccion-variables-conectadas__titulo">
-            Magnitudes Monitoreadas en Tiempo Real
+            Magnitudes ambientales
           </h2>
           <p className="seccion-variables-conectadas__bajada">
-            Sensores de precisión que reportan continuamente las condiciones de cada microclima hacia la red de control.
+            Los nodos miden la temperatura y la humedad del aire y del sustrato de cada zona.
           </p>
         </div>
 
-        {/* Fila de círculos simétricos conectados visualmente */}
+        {/* Los iconos distinguen las magnitudes; el texto comunica el rango o la disponibilidad. */}
         <div className="seccion-variables-conectadas__fila">
-          {/* Línea conectora horizontal sutil en el fondo */}
-          <div className="seccion-variables-conectadas__linea-guia" aria-hidden="true" />
-
-          {VARIABLES_SISTEMA.map((item, index) => (
-            <div key={item.id} className="circulo-variable-item">
-              {/* Círculo simétrico con borde y acento en lima */}
-              <div className="circulo-variable-item__aro" tabIndex={0} aria-label={`${item.nombre}: rango ${item.rango}`}>
-                {/* Indicador numérico de paso sutil */}
-                <span className="circulo-variable-item__indice" aria-hidden="true">
-                  0{index + 1}
-                </span>
-
-                {/* Icono vectorial limpio en lima/blanco */}
-                <div className="circulo-variable-item__icono">
-                  <Icono nombre={item.icono} tamano={28} />
-                </div>
+          {/* Una celda por magnitud, sin elementos decorativos que ocupen espacio. */}
+          {VARIABLES_SISTEMA.map((item) => (
+            <div key={item.id} className="circulo-variable-item" data-magnitud={item.id}>
+              {/* La máscara conserva la forma del SVG y toma el color de la magnitud. */}
+              <div className="circulo-variable-item__aro" aria-hidden="true">
+                <span
+                  className="circulo-variable-item__icono"
+                  style={{ "--grafico-magnitud": `url("/assets/iconos/tabler/${item.icono}.svg")` }}
+                />
               </div>
 
               {/* Título de la variable */}

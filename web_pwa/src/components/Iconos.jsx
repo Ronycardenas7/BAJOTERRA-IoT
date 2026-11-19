@@ -26,14 +26,10 @@ const TRAZADOS = {
     "M17.5 15H9",
   ],
 
-  // Isotipo emblemático de BAJOTERRA: Invernadero geométrico + hoja central
-  logoInvernadero: [
-    "M12 3L3 9v11a1 1 0 0 0 1 1h16a1 1 0 0 0 1-1V9L12 3z",
-    "M12 3v18",
-    "M3 9h18",
-    "M7.5 21V9",
-    "M16.5 21V9",
-    "M12 11c1.5 0 3 1.2 3 3s-1.5 3-3 3-3-1.2-3-3 1.5-3 3-3z",
+  // Hoja original de la marca, recuperada del encabezado anterior.
+  hojaMarca: [
+    "M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 19 2c1 2 2 4.2 2 8 0 5.5-4.8 10-10 10Z",
+    "M2 21c0-3 1.9-5.4 5.1-6 2.4-.5 4.9-2 5.9-3",
   ],
 
   // 1. Temperatura (Termómetro de precisión)

@@ -22,6 +22,8 @@
   --superficie-musgo: #122B1D;
   --superficie-musgo-hover: #173826;
   --superficie-oscura: #07130D;
+  --superficie-entrada: rgba(0, 0, 0, 0.25);
+  --fondo-barra: rgba(10, 25, 17, 0.94);
 
   /* Bordes de alta definición */
   --borde-lima-suave: rgba(182, 227, 61, 0.18);
@@ -45,6 +47,13 @@
   --color-humeda: #B6E33D;
   --color-selvatica: #10B981;
   --color-deposito: #38BDF8;
+  /* Tonos del texto de alertas y estados del panel. */
+  --bueno: #86efac;
+  --aviso: #fde68a;
+  --malo: #fecaca;
+  --simulado: #ddd6fe;
+  --acento-titulo: #c4f042;
+  --resplandor-hero: rgba(19, 192, 212, 0.13);
 
   /* Geometría estructural */
   --alto-header: 72px;
@@ -53,11 +62,44 @@
   --radio-sm: 8px;
   --radio-md: 14px;
   --radio-tarjeta: 18px;
-  --radio-hero: 24px;
 
   /* Familias tipográficas nativas (cero consumo de red) */
   --fuente-editorial: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   --fuente-mono: ui-monospace, "SF Mono", "Cascadia Code", "Consolas", monospace;
+}
+
+/* Paleta clara aplicada a la portada, al formulario y a las tarjetas del panel. */
+:root[data-tema="claro"] {
+  color-scheme: light;
+  --fondo-bosque: #f6fbf8;
+  --fondo-bosque-medio: #eaf5ef;
+  --fondo-bosque-elevado: #dcefe6;
+  --superficie-musgo: #fff;
+  --superficie-musgo-hover: #e7f4ec;
+  --superficie-oscura: #e5f0ec;
+  --superficie-entrada: #f4faf7;
+  --fondo-barra: rgba(246, 251, 248, 0.94);
+  --borde-lima-suave: #b8d3c5;
+  --borde-lima-destacado: #5f9280;
+  --borde-blanco-sutil: #bed6ca;
+  --lima-vibrante: #075db8;
+  --lima-brillante: #064d98;
+  --lima-texto-oscuro: #fff;
+  --lima-resplandor: rgba(7, 93, 184, 0.22);
+  --texto-blanco: #102a27;
+  --texto-salvia: #345650;
+  --texto-salvia-claro: #234743;
+  --texto-apagado: #4e6b67;
+  --color-arida: #956000;
+  --color-humeda: #326900;
+  --color-selvatica: #087451;
+  --color-deposito: #075db8;
+  --bueno: #0a6936;
+  --aviso: #744600;
+  --malo: #a31424;
+  --simulado: #573499;
+  --acento-titulo: #137438;
+  --resplandor-hero: rgba(14, 165, 204, 0.14);
 }
 
 /* ---------- 2. Base y Reseteo Limpio ---------- */
@@ -160,11 +202,6 @@ p {
   box-shadow: 0 6px 24px rgba(182, 227, 61, 0.35);
 }
 
-.boton-solido-lima--grande {
-  padding: 14px 28px;
-  font-size: 1.05rem;
-}
-
 .boton-contorno-lima {
   display: inline-flex;
   align-items: center;
@@ -184,41 +221,6 @@ p {
 .boton-contorno-lima:hover {
   background-color: var(--lima-vibrante);
   color: var(--lima-texto-oscuro);
-}
-
-.boton-ver-zona {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border-radius: 8px;
-  background-color: var(--superficie-oscura);
-  border: 1px solid var(--borde-blanco-sutil);
-  color: var(--texto-blanco);
-  font-size: 0.82rem;
-  font-weight: 600;
-  transition: background-color 0.15s ease, border-color 0.15s ease, color 0.15s ease;
-}
-
-.boton-ver-zona:hover {
-  background-color: var(--lima-vibrante);
-  border-color: var(--lima-vibrante);
-  color: var(--lima-texto-oscuro);
-}
-
-.pildora-estado-lima {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  background: rgba(182, 227, 61, 0.14);
-  color: var(--lima-vibrante);
-  border: 1px solid rgba(182, 227, 61, 0.35);
 }
 
 .rotulo-lima {
@@ -244,12 +246,6 @@ p {
   animation: pulsoLima 2.2s infinite;
 }
 
-.punto-estado--lima-pequeno {
-  width: 5px;
-  height: 5px;
-  background-color: var(--lima-vibrante);
-}
-
 @keyframes pulsoLima {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: 0.45; transform: scale(0.85); }
@@ -261,7 +257,7 @@ p {
   inset: 0 0 auto 0;
   z-index: 100;
   height: var(--alto-header);
-  background: rgba(10, 25, 17, 0.92);
+  background: var(--fondo-barra);
   border-bottom: 1px solid var(--borde-lima-suave);
   backdrop-filter: blur(14px) saturate(140%);
   -webkit-backdrop-filter: blur(14px) saturate(140%);
@@ -285,27 +281,16 @@ p {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  font-weight: 800;
+  font-weight: 700;
   font-size: 1.15rem;
-  letter-spacing: 0.04em;
-  color: var(--texto-blanco);
+  letter-spacing: -0.01em;
+  color: var(--acento-titulo);
 }
 
 .barra-marca__isotipo {
-  width: 32px;
-  height: 32px;
-  border-radius: 50%;
-  background: rgba(182, 227, 61, 0.12);
-  border: 1px solid var(--lima-vibrante);
-  color: var(--lima-vibrante);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: transform 0.2s ease;
-}
-
-.barra-marca:hover .barra-marca__isotipo {
-  transform: rotate(15deg) scale(1.05);
+  /* Se muestra la hoja directamente, como en la marca original. */
+  display: block;
+  flex: none;
 }
 
 .barra-editorial__divisor-logo {
@@ -345,54 +330,116 @@ p {
   }
 }
 
+/* Mantiene visibles los enlaces de sección en una segunda fila en móvil. */
+@media (max-width: 859px) {
+  :root { --alto-header: 104px; }
+  /* La barra autenticada ocupa una fila porque no incluye enlaces públicos. */
+  .app--sesion { --alto-header: 64px; }
+  .barra-editorial__fila { height: 64px; gap: 8px; }
+  .barra-editorial__nav {
+    position: absolute;
+    inset: 64px var(--padding-lateral) 0;
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .barra-editorial__separador { display: none; }
+}
+
 .barra-editorial__derecha {
   display: flex;
   align-items: center;
   gap: 16px;
 }
 
-.barra-editorial__estado {
-  display: none;
-  align-items: center;
-  gap: 8px;
-  font-size: 0.82rem;
-  color: var(--texto-salvia);
-  background: rgba(18, 43, 29, 0.6);
-  padding: 6px 14px;
-  border-radius: 999px;
+.barra-editorial__tema {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  flex: none;
+  color: var(--texto-blanco);
+  background: var(--superficie-musgo);
   border: 1px solid var(--borde-lima-suave);
+  border-radius: 50%;
+  cursor: pointer;
 }
 
-@media (min-width: 640px) {
-  .barra-editorial__estado {
-    display: flex;
-  }
+/* Deja espacio para la marca y ambos controles en pantallas estrechas. */
+@media (max-width: 420px) {
+  .barra-marca { gap: 5px; font-size: .95rem; }
+  .barra-marca__isotipo svg { width: 22px; height: 22px; }
+  .barra-editorial__derecha { gap: 6px; }
+  .barra-editorial__derecha .boton-contorno-lima { padding-inline: 8px; }
+  .barra-editorial__derecha .boton-contorno-lima svg { display: none; }
 }
 
 /* ---------- 5. Hero Asimétrico (2 Columnas) ---------- */
 .hero-asimetrico {
   position: relative;
-  min-height: calc(100svh - var(--alto-header));
-  padding-top: clamp(48px, 8vw, 84px);
-  padding-bottom: clamp(56px, 8vw, 96px);
-  background: radial-gradient(circle at 80% 20%, rgba(182, 227, 61, 0.08) 0%, transparent 50%),
-              radial-gradient(circle at 20% 70%, rgba(16, 185, 129, 0.10) 0%, transparent 60%),
-              var(--fondo-bosque);
+  isolation: isolate;
+  overflow: hidden;
+  padding-block: clamp(42px, 6vw, 88px);
+  background: radial-gradient(ellipse at 88% 24%, var(--resplandor-hero), transparent 63%),
+              linear-gradient(135deg, var(--fondo-bosque), var(--fondo-bosque-elevado));
   display: flex;
   align-items: center;
 }
 
-.hero-asimetrico__grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: clamp(36px, 6vw, 64px);
-  align-items: center;
+/* Ajusta la fotografía ambiental al ancho sin deformarla. */
+.hero-asimetrico__fondo,
+.hero-asimetrico::before {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.hero-asimetrico__fondo {
+  z-index: -2;
+  object-fit: cover;
+  object-position: center 54%;
+  filter: saturate(.72);
+}
+
+/* Protege la lectura a la izquierda y funde el fondo con la siguiente sección. */
+.hero-asimetrico::before {
+  content: "";
+  z-index: -1;
+  background:
+    linear-gradient(0deg, var(--fondo-bosque) 0%, transparent 40%),
+    linear-gradient(90deg, rgba(4, 18, 13, .95) 0%, rgba(5, 23, 17, .85) 33%, rgba(4, 25, 18, .46) 66%, rgba(5, 31, 23, .22) 100%);
+}
+
+/* El velo de salvia unifica el fondo junto al montaje y conserva la lectura del título. */
+:root[data-tema="claro"] .hero-asimetrico::before {
+  background:
+    linear-gradient(0deg, var(--fondo-bosque) 0%, transparent 40%),
+    linear-gradient(90deg, #f6fbf8 0%, #f6fbf8ed 35%, #e2efe6a8 66%, #d5e9dd80 100%);
+}
+
+/* En móvil el velo cubre todo el ancho en el que se lee el texto. */
+@media (max-width: 959px) {
+  .hero-asimetrico::before {
+    background: linear-gradient(180deg, #061610e8 0%, #071b13db 70%, var(--fondo-bosque) 100%);
+  }
+
+  :root[data-tema="claro"] .hero-asimetrico::before {
+    background: linear-gradient(180deg, #f6fbf8ed 0%, #e2efe6d9 70%, var(--fondo-bosque) 100%);
+  }
+}
+
+/* Limita el ancho del texto y deja visible la fotografía hacia la derecha. */
+.hero-asimetrico__contenido {
+  max-width: 38rem;
 }
 
 @media (min-width: 960px) {
-  .hero-asimetrico__grid {
-    grid-template-columns: 1.15fr 0.85fr;
+  .hero-asimetrico {
+    min-block-size: clamp(550px, 72svh, 690px);
   }
+
 }
 
 .hero-asimetrico__badge {
@@ -410,7 +457,7 @@ p {
 }
 
 .hero-asimetrico__titulo {
-  font-size: clamp(2.4rem, 4.8vw, 4rem);
+  font-size: clamp(2rem, 4.1vw, 3.7rem);
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--texto-blanco);
@@ -418,33 +465,21 @@ p {
   line-height: 1.12;
 }
 
+/* Resalta el concepto central con el color propio de cada tema. */
+.hero-asimetrico__titulo span {
+  color: var(--acento-titulo);
+}
+
+:root[data-tema="claro"] .hero-asimetrico__badge {
+  background: var(--superficie-musgo);
+}
+
 .hero-asimetrico__subtitulo {
   font-size: clamp(1.05rem, 1.8vw, 1.25rem);
   color: var(--texto-salvia);
   line-height: 1.6;
   max-width: 54ch;
-  margin-bottom: 36px;
-}
-
-.hero-asimetrico__visual {
-  position: relative;
-}
-
-.hero-asimetrico__marco-foto {
-  position: relative;
-  border-radius: var(--radio-hero);
-  overflow: hidden;
-  border: 1px solid var(--borde-lima-destacado);
-  background: var(--superficie-musgo);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.7), 0 0 35px var(--lima-resplandor);
-}
-
-.hero-asimetrico__foto {
-  width: 100%;
-  height: auto;
-  aspect-ratio: 4 / 3;
-  object-fit: cover;
-  display: block;
+  margin-bottom: 0;
 }
 
 /* ---------- 6. Fila de Tarjetas de Zonas / Módulos (Zonas.jsx) ---------- */
@@ -549,7 +584,7 @@ p {
 .tarjeta-modulo-editorial__lista {
   list-style: none;
   padding: 0;
-  margin: 0 0 20px 0;
+  margin: 0;
   display: flex;
   flex-direction: column;
   gap: 8px;
@@ -570,20 +605,6 @@ p {
   font-weight: bold;
 }
 
-.tarjeta-modulo-editorial__pie {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
-}
-
-.seccion-modulos__accion-central {
-  margin-top: 48px;
-  text-align: center;
-}
-
 /* ---------- 7. Sección Editorial "Más que un simple invernadero" (Proyecto.jsx) ---------- */
 .seccion-editorial-arquitectura {
   padding-block: clamp(64px, 8vw, 104px);
@@ -595,7 +616,7 @@ p {
 
 .seccion-editorial-arquitectura__top {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: clamp(36px, 6vw, 64px);
   align-items: center;
   margin-bottom: clamp(48px, 7vw, 80px);
@@ -603,7 +624,7 @@ p {
 
 @media (min-width: 900px) {
   .seccion-editorial-arquitectura__top {
-    grid-template-columns: 1.2fr 0.8fr;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.05fr);
   }
 }
 
@@ -620,27 +641,146 @@ p {
   margin-bottom: 18px;
 }
 
-.seccion-editorial-arquitectura__circulo-marco {
-  display: flex;
-  justify-content: center;
+/* Carrusel con un marco central y un vistazo a las fotos vecinas. */
+.carrusel-zonas {
+  min-width: 0;
+  width: min(100%, 560px);
+  justify-self: center;
 }
 
-.foto-circular-invernadero {
+/* El margen interior permite centrar también la primera y la última foto. */
+.carrusel-zonas__pista {
   position: relative;
-  width: 100%;
-  max-width: 380px;
-  aspect-ratio: 1 / 1;
-  border-radius: 50%;
-  overflow: hidden;
-  border: 2px solid var(--lima-vibrante);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6), 0 0 35px var(--lima-resplandor);
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  overscroll-behavior-inline: contain;
+  scrollbar-width: none;
+  list-style: none;
+  padding: 8px 10% 14px;
+  margin: 0;
 }
 
-.foto-circular-invernadero__img {
+.carrusel-zonas__diapositiva {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
+/* Enmarcado de cada zona con su color y espacio fijo para la fotografía. */
+.carrusel-zonas__foto {
+  position: relative;
+  height: clamp(270px, 48vw, 365px);
+  isolation: isolate;
+  margin: 0;
+  border-radius: var(--radio-tarjeta);
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--acento) 55%, transparent);
+  background: var(--superficie-oscura);
+  transition: border-color 250ms ease, box-shadow 250ms ease;
+}
+
+.carrusel-zonas__foto img {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  object-position: center 43%;
+  transition: transform 450ms ease;
+}
+
+/* La sombra fija mantiene legibles los nombres sobre cualquier fotografía. */
+.carrusel-zonas__pie {
+  position: absolute;
+  inset: auto 0 0;
+  padding: 40px clamp(12px, 4vw, 24px) 15px;
+  background: linear-gradient(transparent, #06120bed 48%, #06120b);
+  color: #fff;
+}
+
+.carrusel-zonas__pie span {
+  color: color-mix(in srgb, var(--acento) 68%, white);
+  font-weight: 750;
+  font-size: .875rem;
+}
+
+.carrusel-zonas__pie strong {
   display: block;
+  font-size: clamp(1.1rem, 2.5vw, 1.55rem);
+  line-height: 1.15;
+}
+
+.carrusel-zonas__pie p {
+  color: #dce8df;
+  font-size: .875rem;
+  margin: 5px 0 0;
+}
+
+/* Solo se amplía con un puntero preciso; en táctil la descripción siempre está visible. */
+@media (hover: hover) and (pointer: fine) {
+  .carrusel-zonas__foto:hover {
+    border-color: var(--acento);
+    box-shadow: 0 5px 16px color-mix(in srgb, var(--acento) 22%, transparent);
+  }
+
+  .carrusel-zonas__foto:hover img {
+    transform: scale(1.07);
+  }
+}
+
+/* Respeta la preferencia de movimiento reducido también al pasar el ratón. */
+@media (prefers-reduced-motion: reduce) {
+  .carrusel-zonas__foto:hover img { transform: none; }
+}
+
+/* Los botones mantienen áreas de interacción cómodas en móvil. */
+.carrusel-zonas__controles,
+.carrusel-zonas__puntos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+}
+
+.carrusel-zonas__flecha,
+.carrusel-zonas__punto {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+  cursor: pointer;
+}
+
+.carrusel-zonas__flecha {
+  border: 1px solid var(--borde-lima-destacado);
+  border-radius: 50%;
+  color: var(--texto-blanco);
+  background: var(--superficie-musgo);
+  font-size: 1.7rem;
+  line-height: 1;
+}
+
+.carrusel-zonas__flecha:hover {
+  color: var(--lima-texto-oscuro);
+  background: var(--lima-vibrante);
+}
+
+.carrusel-zonas__punto {
+  background: transparent;
+  border: 0;
+  color: var(--texto-salvia);
+}
+
+.carrusel-zonas__punto::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 999px;
+  background: currentColor;
+}
+
+.carrusel-zonas__punto[aria-current="true"]::before {
+  width: 22px;
+  background: var(--lima-vibrante);
 }
 
 /* Fila de 5 Indicadores Destacados */
@@ -697,20 +837,21 @@ p {
 
 .seccion-hardware-galeria__layout {
   display: grid;
-  grid-template-columns: 1fr;
+  grid-template-columns: minmax(0, 1fr);
   gap: clamp(36px, 6vw, 64px);
   align-items: start;
 }
 
 @media (min-width: 960px) {
   .seccion-hardware-galeria__layout {
-    grid-template-columns: 340px 1fr;
+    grid-template-columns: 340px minmax(0, 1fr);
   }
-}
 
-.seccion-hardware-galeria__columna-fija {
-  position: sticky;
-  top: calc(var(--alto-header) + 30px);
+  /* La introducción acompaña al carrusel sin taparlo en pantallas pequeñas. */
+  .seccion-hardware-galeria__columna-fija {
+    position: sticky;
+    top: calc(var(--alto-header) + 30px);
+  }
 }
 
 .seccion-hardware-galeria__titulo {
@@ -725,32 +866,38 @@ p {
   margin-bottom: 24px;
 }
 
-.seccion-hardware-galeria__detalle-fijo {
-  padding: 18px;
-  border-radius: var(--radio-md);
-  background: var(--superficie-musgo);
-  border: 1px solid var(--borde-lima-suave);
+/* La ventana admite desplazamiento manual y oculta los extremos de la cinta. */
+.seccion-hardware-galeria__visor {
+  position: relative;
+  max-block-size: 530px;
+  overflow-y: auto;
+  overflow-x: clip;
+  overflow-anchor: none;
+  scrollbar-width: thin;
+  scrollbar-color: var(--borde-lima-destacado) transparent;
+  mask-image: linear-gradient(transparent, black 14px, black calc(100% - 20px), transparent);
 }
 
-.seccion-hardware-galeria__nota-pie {
-  font-size: 0.82rem;
-  color: var(--texto-salvia);
-  line-height: 1.45;
-  margin-top: 10px;
-  margin-bottom: 0;
+.seccion-hardware-galeria__visor:focus-visible {
+  mask-image: none;
 }
 
+/* El margen al pie deja visible la última tarjeta al recorrer la lista. */
 .seccion-hardware-galeria__tarjetas {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
+  list-style: none;
+  margin: 0;
+  padding: 0 8px 16px 0;
 }
 
 .tarjeta-hardware-horizontal {
   display: grid;
-  grid-template-columns: 1fr;
-  gap: 18px;
-  padding: 20px;
+  grid-template-columns: clamp(60px, 18vw, 100px) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(10px, 2.2vw, 18px);
+  padding: clamp(12px, 2.2vw, 20px);
   border-radius: var(--radio-tarjeta);
   background-color: var(--superficie-musgo);
   border: 1px solid var(--borde-lima-suave);
@@ -759,8 +906,7 @@ p {
 
 @media (min-width: 600px) {
   .tarjeta-hardware-horizontal {
-    grid-template-columns: 160px 1fr;
-    align-items: center;
+    grid-template-columns: 160px minmax(0, 1fr);
   }
 }
 
@@ -771,7 +917,7 @@ p {
 }
 
 .tarjeta-hardware-horizontal__visual {
-  height: 130px;
+  height: clamp(75px, 22vw, 130px);
   border-radius: 12px;
   background-color: var(--superficie-oscura);
   border: 1px solid rgba(255, 255, 255, 0.05);
@@ -780,6 +926,7 @@ p {
   justify-content: center;
   padding: 8px;
   overflow: hidden;
+  color: var(--acento-titulo);
 }
 
 .tarjeta-hardware-horizontal__imagen {
@@ -864,6 +1011,8 @@ p {
 }
 
 .circulo-variable-item {
+  /* Los acentos reutilizan los colores de alto contraste de ambos temas. */
+  --acento-magnitud: var(--color-selvatica);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -874,14 +1023,20 @@ p {
   max-width: 150px;
 }
 
+[data-magnitud="temperatura"],
+[data-magnitud="radiacion-solar"] { --acento-magnitud: var(--color-arida); }
+[data-magnitud="humedad-aire"] { --acento-magnitud: var(--color-deposito); }
+[data-magnitud="humedad-sustrato"] { --acento-magnitud: var(--color-humeda); }
+[data-magnitud="co2"] { --acento-magnitud: var(--simulado); }
+
 .circulo-variable-item__aro {
   position: relative;
   width: 105px;
   height: 105px;
   border-radius: 50%;
-  background: var(--superficie-musgo);
-  border: 1.8px solid var(--lima-vibrante);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4), 0 0 18px var(--lima-resplandor);
+  background: color-mix(in srgb, var(--acento-magnitud) 7%, var(--superficie-musgo));
+  border: 1px solid color-mix(in srgb, var(--acento-magnitud) 70%, transparent);
+  box-shadow: inset 0 0 0 5px var(--superficie-musgo), 0 8px 20px color-mix(in srgb, var(--acento-magnitud) 14%, transparent);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -891,29 +1046,22 @@ p {
 }
 
 .circulo-variable-item:hover .circulo-variable-item__aro {
-  transform: translateY(-4px) scale(1.04);
   background-color: var(--superficie-musgo-hover);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6), 0 0 28px rgba(182, 227, 61, 0.35);
+  box-shadow: inset 0 0 0 5px var(--superficie-musgo), 0 8px 24px color-mix(in srgb, var(--acento-magnitud) 24%, transparent);
 }
 
-.circulo-variable-item__indice {
-  position: absolute;
-  top: 8px;
-  right: 14px;
-  font-family: var(--fuente-mono);
-  font-size: 0.68rem;
-  color: var(--lima-vibrante);
-  opacity: 0.7;
-}
-
+/* Los SVG quedan nítidos a mayor tamaño sin descargar una fuente de iconos. */
 .circulo-variable-item__icono {
-  color: var(--texto-blanco);
-  transition: transform 0.25s ease, color 0.25s ease;
+  width: 48px;
+  height: 48px;
+  background: var(--acento-magnitud);
+  mask: var(--grafico-magnitud) center / contain no-repeat;
+  transition: transform 0.25s ease;
 }
 
-.circulo-variable-item:hover .circulo-variable-item__icono {
-  transform: scale(1.1);
-  color: var(--lima-vibrante);
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .circulo-variable-item:hover .circulo-variable-item__aro { transform: translateY(-3px); }
+  .circulo-variable-item:hover .circulo-variable-item__icono { transform: scale(1.1); }
 }
 
 .circulo-variable-item__nombre {
@@ -932,7 +1080,7 @@ p {
 /* ---------- 10. Pie de Página (Pie.jsx) ---------- */
 .pie {
   padding: 32px 0;
-  background-color: #07130D;
+  background-color: var(--superficie-oscura);
   border-top: 1px solid var(--borde-lima-suave);
   color: var(--texto-apagado);
   font-size: 0.84rem;
@@ -965,39 +1113,228 @@ p {
   padding-top: var(--alto-header);
 }
 
-/* Conserva la estética oscura de las tarjetas del panel */
-.panel {
-  padding-block: 36px 72px;
-}
+/* ---------- Etiquetas de estado (SIMULADO, En línea...) ---------- */
+.etiqueta { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 0.76rem; font-weight: 600; letter-spacing: 0.02em; border: 1px solid var(--borde-lima-suave); background: rgba(255, 255, 255, 0.05); color: var(--texto-salvia); white-space: nowrap; }
+.etiqueta--bueno { color: var(--bueno); border-color: rgba(74, 222, 128, 0.4); background: rgba(74, 222, 128, 0.1); }
+.etiqueta--aviso { color: var(--aviso); border-color: rgba(251, 191, 36, 0.4); background: rgba(251, 191, 36, 0.1); }
+.etiqueta--malo { color: var(--malo); border-color: rgba(248, 113, 113, 0.4); background: rgba(248, 113, 113, 0.1); }
+.etiqueta--simulado { color: var(--simulado); border-color: rgba(196, 181, 253, 0.4); background: rgba(196, 181, 253, 0.1); }
 
-.panel__cabecera {
-  margin-bottom: 28px;
-}
+/* ---------- Avisos ---------- */
+.aviso { padding: 12px 16px; border-radius: 12px; margin: 0 0 16px; border: 1px solid var(--borde-lima-suave); font-size: 0.93rem; }
+.aviso--simulado { color: var(--simulado); background: rgba(196, 181, 253, 0.08); border-color: rgba(196, 181, 253, 0.3); }
+.aviso--malo { color: var(--malo); background: rgba(248, 113, 113, 0.09); border-color: rgba(248, 113, 113, 0.35); }
+.vacio { color: var(--texto-salvia); padding: 12px 0; }
 
-.panel__titulo {
-  font-size: 2.2rem;
-  margin-bottom: 8px;
-}
+/* ---------- Panel de Control ---------- */
+.panel { padding-block: 32px 64px; }
+.panel__cabecera { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: end; gap: 16px; margin-bottom: 24px; }
+.panel__cabecera h1 { font-size: clamp(1.7rem, 4vw, 2.4rem); }
+.panel__cabecera p { color: var(--texto-salvia); margin: 6px 0 0; }
+/* Fila de indicadores generales. */
+.resumen { display: grid; gap: 12px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); margin-bottom: 20px; }
+.indicador { padding: 14px 16px; border-radius: 14px; border: 1px solid var(--borde-lima-suave); background: var(--superficie-musgo); }
+.indicador span { display: block; font-size: 0.78rem; color: var(--texto-salvia); text-transform: uppercase; letter-spacing: 0.08em; }
+.indicador strong { font-size: 1.35rem; letter-spacing: -0.02em; }
+/* Rejilla de las tres zonas: 1 columna en móvil, 3 en pantallas anchas. */
+.rejilla-zonas { display: grid; gap: 20px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); align-items: stretch; }
 
-.panel__bajada {
-  color: var(--texto-salvia);
-}
+/* Cada fila de zonas comparte alturas para cabecera, métricas y controles. */
+@supports (grid-template-rows: subgrid) {
+  @media (min-width: 780px) {
+    .rejilla-zonas > .tarjeta {
+      display: grid;
+      grid-template-rows: subgrid;
+      grid-row: span 6;
+      row-gap: 0;
+    }
 
-.panel-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
-}
+    /* Separa las etiquetas del título aunque el lema ocupe dos líneas. */
+    .rejilla-zonas .tarjeta__cabecera {
+      display: grid;
+      grid-template-rows: 1fr auto;
+      justify-content: stretch;
+    }
 
-@media (min-width: 960px) {
-  .panel-grid {
-    grid-template-columns: repeat(3, 1fr);
+    .rejilla-zonas .metricas,
+    .rejilla-zonas .tarjeta__sin-lecturas {
+      grid-row: span 2;
+    }
+
+    .rejilla-zonas .metricas {
+      grid-template-rows: subgrid;
+    }
   }
 }
 
-.panel-card {
+/* Tarjeta de zona o depósito. */
+.tarjeta { position: relative; padding: 20px; border-radius: 20px; background: var(--superficie-musgo); border: 1px solid var(--borde-lima-suave); border-top: 3px solid var(--acento); overflow: hidden; }
+.tarjeta::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 140px; pointer-events: none; background: linear-gradient(180deg, color-mix(in srgb, var(--acento) 14%, transparent), transparent); }
+.tarjeta > * { position: relative; }
+.tarjeta__cabecera { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; flex-wrap: wrap; }
+.tarjeta__titulo { display: flex; gap: 12px; align-items: center; }
+.tarjeta__icono { width: 42px; height: 42px; border-radius: 12px; display: grid; place-items: center; background: color-mix(in srgb, var(--acento) 18%, transparent); color: var(--acento); flex: none; }
+.tarjeta h2 { font-size: 1.2rem; }
+.tarjeta__cientifico { color: var(--texto-salvia); font-size: 0.85rem; margin: 2px 0 0; }
+.tarjeta__etiquetas { display: flex; gap: 6px; flex-wrap: wrap; }
+.tarjeta__enfoque { color: var(--texto-salvia); font-size: 0.9rem; margin: 14px 0; }
+.tarjeta__hora { color: var(--texto-salvia); font-size: 0.78rem; margin: 14px 0; }
+
+/* Métricas con mini gráfico. */
+.metricas { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 1fr; gap: 10px; }
+.metrica { display: flex; flex-direction: column; padding: 12px; border-radius: 14px; background: var(--superficie-entrada); border: 1px solid var(--borde-lima-suave); min-width: 0; }
+/* Alinea los gráficos al pie aunque los títulos tengan distinta longitud. */
+.metrica .spark { margin-top: auto; }
+.metrica__nombre { font-size: 0.76rem; color: var(--texto-salvia); text-transform: uppercase; letter-spacing: 0.07em; }
+.metrica__valor { font-size: 1.4rem; font-weight: 700; letter-spacing: -0.02em; margin: 2px 0 6px; white-space: nowrap; }
+.metrica__valor small { font-size: 0.8rem; font-weight: 500; color: var(--texto-salvia); margin-left: 3px; }
+.metrica--ausente .metrica__valor { color: var(--texto-salvia); }
+/* Mini gráfico de línea (SVG). */
+.spark { display: block; width: 100%; height: 36px; }
+.spark__linea { fill: none; stroke: var(--acento); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; vector-effect: non-scaling-stroke; }
+.spark__area { fill: var(--acento); opacity: 0.14; stroke: none; }
+.spark__punto { fill: var(--acento); }
+.spark--vacio { border-bottom: 1px dashed var(--borde-lima-suave); height: 36px; }
+
+/* Lista de medidas del depósito (se mantiene el formato sencillo). */
+.medidas { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: 10px; margin: 14px 0 0; }
+.medida { padding: 12px; border-radius: 14px; background: var(--superficie-entrada); border: 1px solid var(--borde-lima-suave); }
+.medida dt { font-size: 0.76rem; color: var(--texto-salvia); text-transform: uppercase; letter-spacing: 0.07em; }
+.medida dd { margin: 4px 0 0; font-size: 1.2rem; font-weight: 700; }
+
+/* Actuadores. */
+.actuadores { margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--borde-lima-suave); }
+.actuadores__titulo { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin-bottom: 8px; }
+.actuadores__titulo h3 { font-size: 0.95rem; }
+.actuador { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 10px 0; border-bottom: 1px dashed var(--borde-lima-suave); }
+.actuador:last-of-type { border-bottom: 0; }
+.actuador__nombre { display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1 1 150px; }
+.actuador__nombre svg { color: var(--texto-salvia); flex: none; }
+.actuador__nombre strong { display: block; font-size: 0.95rem; }
+.actuador__estado { display: block; font-size: 0.78rem; color: var(--texto-salvia); }
+/* Punto de estado reportado: verde = encendido. Además siempre hay texto. */
+.led { display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: #475b4f; margin-right: 6px; }
+.led--encendido { background: var(--bueno); box-shadow: 0 0 8px var(--bueno); }
+.actuador__botones { display: flex; gap: 6px; flex: none; }
+.actuador__botones button { padding: 6px 10px; border-radius: 10px; border: 1px solid var(--borde-lima-suave); background: var(--superficie-musgo-hover); color: var(--texto-blanco); cursor: pointer; font-size: 0.85rem; transition: background 0.2s; }
+.actuador__botones button:hover:enabled { background: rgba(74, 222, 128, 0.18); border-color: rgba(74, 222, 128, 0.5); }
+.actuador__botones button:disabled { opacity: 0.4; cursor: not-allowed; }
+.actuadores__nota { color: var(--texto-salvia); font-size: 0.82rem; margin: 8px 0 0; }
+.orden { margin: 10px 0 0; padding: 8px 12px; border-radius: 10px; font-size: 0.85rem; border: 1px solid var(--borde-lima-suave); }
+.orden--bueno { color: var(--bueno); background: rgba(74, 222, 128, 0.08); border-color: rgba(74, 222, 128, 0.3); }
+.orden--aviso { color: var(--aviso); background: rgba(251, 191, 36, 0.08); border-color: rgba(251, 191, 36, 0.3); }
+.orden--malo { color: var(--malo); background: rgba(248, 113, 113, 0.08); border-color: rgba(248, 113, 113, 0.3); }
+.orden--neutro { color: var(--texto-salvia); }
+
+/* Colores de acento por zona (se aplican con la clase de la zona). */
+.zona--arida { --acento: var(--color-arida); }
+.zona--humeda { --acento: var(--color-humeda); }
+.zona--selvatica { --acento: var(--color-selvatica); }
+.zona--deposito { --acento: var(--color-deposito); }
+
+/* El acceso reutiliza la foto de portada y reserva un plano sólido para el formulario. */
+.acceso-pagina {
+  isolation: isolate;
+  position: relative;
+  display: grid;
+  align-items: center;
+  min-height: calc(100svh - var(--alto-header));
+  padding-block: clamp(26px, 7vw, 88px);
+  overflow: hidden;
+  background: var(--fondo-bosque);
+}
+
+.acceso-pagina__fondo {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 55%;
+  filter: saturate(.75);
+}
+
+.acceso-pagina::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(90deg, #09241970, #081b12e8);
+}
+
+:root[data-tema="claro"] .acceso-pagina::before {
+  background: linear-gradient(90deg, #d5e9dd54, #f6fbf8ed);
+}
+
+/* El acceso queda centrado en pantallas pequeñas y comparte espacio con la foto en escritorio. */
+.acceso-pagina__layout {
+  display: grid;
+  justify-items: center;
+}
+
+@media (min-width: 840px) {
+  .acceso-pagina__layout {
+    justify-items: end;
+  }
+}
+
+.acceso {
+  width: min(100%, 470px);
+  padding: clamp(20px, 4.5vw, 38px);
+  border-radius: 22px;
   background: var(--superficie-musgo);
   border: 1px solid var(--borde-lima-suave);
-  border-radius: var(--radio-tarjeta);
-  padding: 24px;
+  box-shadow: 0 20px 44px #071d1740;
 }
+
+.acceso h1 { font-size: clamp(1.65rem, 3vw, 2.15rem); margin-bottom: 12px; }
+.acceso__texto { color: var(--texto-salvia); font-size: 1rem; }
+.acceso__formulario { display: grid; gap: 14px; margin: 18px 0; }
+.acceso__formulario label { display: grid; gap: 6px; font-size: 0.88rem; color: var(--texto-salvia); }
+.acceso__formulario input { padding: 11px 12px; border-radius: 10px; border: 1px solid var(--borde-lima-suave); background: var(--superficie-entrada); color: var(--texto-blanco); font: inherit; }
+.acceso__formulario input:focus { outline: 2px solid var(--lima-vibrante); outline-offset: 1px; }
+.acceso__formulario .boton-solido-lima { justify-content: center; min-height: 44px; }
+
+/* El control de contraseña queda junto al campo y admite navegación con teclado. */
+.acceso__grupo-clave { position: relative; }
+.acceso__grupo-clave input { padding-inline-end: 88px; }
+.acceso__mostrar {
+  position: absolute;
+  inset: auto 8px 6px auto;
+  min-height: 32px;
+  padding-inline: 8px;
+  border: 0;
+  border-radius: 6px;
+  background: var(--superficie-musgo-hover);
+  color: var(--texto-blanco);
+  font-size: .82rem;
+  cursor: pointer;
+}
+
+.acceso__enlaces { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 18px; }
+.acceso__cambiar { background: none; border: 0; color: var(--lima-vibrante); cursor: pointer; padding: 0; text-decoration: underline; }
+/* Hace visibles el estado desactivado y las acciones del panel. */
+.actuadores__titulo button { color: var(--texto-blanco); background: var(--superficie-musgo-hover); border: 1px solid var(--borde-lima-suave); border-radius: var(--radio-sm); }
+.acceso button:disabled,
+.actuadores__titulo button:disabled { opacity: 0.55; cursor: not-allowed; }
+.acceso__formulario input { width: 100%; min-width: 0; }
+.cuenta { overflow-wrap: anywhere; }
+/* Barra con la cuenta y el modo de datos en el panel. */
+.cuenta { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+/* La lista de órdenes conserva fechas, zonas y estados legibles en móvil. */
+.historial-ordenes {
+  margin-top: 20px;
+  padding: clamp(14px, 3vw, 24px);
+  border-radius: var(--radio-tarjeta);
+  border: 1px solid var(--borde-lima-suave);
+  background: var(--superficie-musgo);
+}
+
+.historial-ordenes summary { font-weight: 700; cursor: pointer; }
+.historial-ordenes > p { color: var(--texto-salvia); margin-top: 10px; }
+.historial-ordenes__lista { list-style: none; padding: 0; margin: 0; }
+.historial-ordenes__lista li { display: flex; flex-wrap: wrap; align-items: baseline; gap: 2px 14px; }
+.historial-ordenes__lista time { color: var(--texto-salvia); }
+.historial-ordenes__lista li > span { flex-basis: 100%; overflow-wrap: anywhere; }

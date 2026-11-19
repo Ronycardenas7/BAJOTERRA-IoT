@@ -7,23 +7,25 @@ import PanelActuadores from "../actuadores/PanelActuadores.jsx";
 import Metrica from "../telemetria/Metrica.jsx";
 import { describirConexion, formatearHora } from "../telemetria/formato.js";
 
-// Entrada vacía que se usa si el backend no informó esta zona (por ejemplo, si corre una versión antigua).
+// Entrada vacía para una zona sin datos en el resumen.
 const ENTRADA_VACIA = { lectura: null, conexion: { estado: "desconocido", desactualizada: false, segundos_desde_ultima_lectura: null } };
 
 // Props: zona (datos fijos), entrada (lectura y conexión, puede faltar), unidades e historial (lecturas recientes).
 export default function TarjetaZona({ zona, entrada: entradaRecibida, unidades, historial, puedeOrdenar = true }) {
-  // Si el backend no envió esta zona se usa la entrada vacía: la tarjeta muestra "Sin datos" en vez de romper la página.
-  const entrada = entradaRecibida ?? ENTRADA_VACIA;
+  // Usa la entrada vacía para mostrar la tarjeta aunque falten los datos.
+  const entrada = entradaRecibida || ENTRADA_VACIA;
   // Última lectura (puede ser null si aún no llegó ninguna).
   const lectura = entrada.lectura;
+  // La antigüedad solo se muestra si la conexión informa un número.
+  const antiguedad = entrada.conexion?.segundos_desde_ultima_lectura;
   // Texto y tono de la conexión.
   const conexion = describirConexion(entrada.conexion);
   // ¿El dispositivo está en línea con datos recientes?
-  const enLinea = entrada.conexion.estado === "en_linea" && !entrada.conexion.desactualizada;
+  const enLinea = entrada.conexion?.estado === "en_linea" && !entrada.conexion.desactualizada;
   // Las órdenes solo se habilitan con permiso y con el dispositivo en línea.
   const habilitado = puedeOrdenar && enLinea;
   // Explicación que se muestra si las órdenes están bloqueadas.
-  const motivo = !puedeOrdenar ? "tu cuenta es de solo lectura (pide permiso de operador)." : "el dispositivo no está en línea o sus datos están desactualizados.";
+  const motivo = !puedeOrdenar ? "el permiso de control aún no está disponible para esta sesión." : "el dispositivo no está en línea o sus datos están desactualizados.";
 
   // Devuelve la tarjeta.
   return (
@@ -67,26 +69,26 @@ export default function TarjetaZona({ zona, entrada: entradaRecibida, unidades, 
           {/* Una métrica por cada medición destacada de esta zona. */}
           {zona.metricas.map((nombre) => (
             // Cada recuadro recibe el valor actual y la serie histórica de esa medición.
-            <Metrica key={nombre} nombre={nombre} valor={lectura.mediciones[nombre]} unidades={unidades} valores={(historial ?? []).map((l) => l.mediciones[nombre])} />
+            <Metrica key={nombre} nombre={nombre} valor={lectura.mediciones?.[nombre]} unidades={unidades} valores={Array.isArray(historial) ? historial.map((l) => l?.mediciones?.[nombre]) : []} />
           ))}
         </div>
       ) : (
-        // Mensaje cuando no hay lecturas: distingue "el backend no conoce la zona" de "aún no llegan datos".
-        <p className="vacio">{entradaRecibida ? "Todavía no llegan lecturas de esta zona." : "El backend no informa esta zona."}</p>
+        // Mensaje cuando todavía no llegan lecturas.
+        <p className="vacio tarjeta__sin-lecturas">Todavía no llegan lecturas de esta zona.</p>
       )}
 
       {/* Pie con la hora de medición (indicando zona horaria) y la antigüedad del dato. */}
       <p className="tarjeta__hora">
         {/* Hora en que se midió. */}
         Medido: {formatearHora(lectura?.medido_en)}
-        {/* Antigüedad calculada por el backend. */}
-        {entrada.conexion.segundos_desde_ultima_lectura !== null && ` · hace ${Math.round(entrada.conexion.segundos_desde_ultima_lectura)} s`}
+        {/* Antigüedad calculada a partir de la recepción en Supabase. */}
+        {typeof antiguedad === "number" && ` · hace ${Math.round(antiguedad)} s`}
         {/* Aviso si el dispositivo declaró calidad distinta de buena. */}
         {lectura && lectura.calidad !== "buena" && ` · calidad: ${lectura.calidad}`}
       </p>
 
       {/* Panel de actuadores de la zona. */}
-      <PanelActuadores zona={zona.id} actuadores={lectura?.actuadores} modo={lectura?.modo} habilitado={habilitado} motivo={motivo} />
+      <PanelActuadores zona={zona.id} actuadores={lectura?.actuadores} modo={lectura?.modo} recibidoEn={lectura?.recibido_en} habilitado={habilitado} motivo={motivo} />
     </section>
   );
 }

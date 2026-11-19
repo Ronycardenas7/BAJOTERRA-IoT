@@ -1,74 +1,85 @@
 // ============================================================================
 // BAJOTERRA-IoT · Encabezado Minimalista (Header Verde Bosque + Lima Vibrante)
 // Estructura:
-//  - Izquierda: Isotipo circular invernadero/hoja + Marca BAJOTERRA + enlaces con barra |
-//  - Derecha: Indicador de estado del sistema + Botón de contorno redondeado "Ir al Panel"
+//  - Izquierda: hoja de BAJOTERRA y enlaces de navegación.
+//  - Derecha: selector de tema y acceso al panel.
 // ============================================================================
 
-import React from "react";
+// Mantiene el selector de tema sincronizado con la apariencia de la página.
+import React, { useState } from "react";
 import Icono from "./Iconos.jsx";
 
 // Enlaces de navegación con anclas internas separadas por barras verticales (|)
 const ENLACES_NAV = [
   { href: "#inicio", texto: "Inicio" },
   { href: "#zonas", texto: "Zonas" },
-  { href: "#arquitectura", texto: "Arquitectura" },
+  { href: "#arquitectura", texto: "Proyecto" },
   { href: "#hardware", texto: "Hardware" },
 ];
 
-// Props: ruta actual de la aplicación ("inicio" o "panel")
-export default function Encabezado({ ruta }) {
+// Muestra navegación pública únicamente si no hay una sesión activa.
+export default function Encabezado({ ruta, sesionActiva, cerrando, cerrarSesion }) {
+  // Lee la preferencia aplicada al cargar la página.
+  const [tema, setTema] = useState(() => document.documentElement.dataset.tema ?? "oscuro");
+
+  function alternarTema() {
+    // Aplica el tema en la misma página, sin volver a montar el panel.
+    const siguiente = tema === "claro" ? "oscuro" : "claro";
+    document.documentElement.dataset.tema = siguiente;
+    setTema(siguiente);
+    try {
+      localStorage.setItem("bajoterra-tema", siguiente);
+    } catch {
+      // El cambio sigue funcionando para esta visita si se bloquea el almacenamiento.
+    }
+  }
+
   return (
     <header className="barra-editorial" role="banner">
       <div className="contenedor barra-editorial__fila">
         {/* Lado izquierdo: Isotipo emblemático, Marca y Navegación dividida por barras */}
         <div className="barra-editorial__izquierda">
-          {/* Logo emblemático con isotipo circular de invernadero en línea fina blanca/lima */}
-          <a className="barra-marca" href="#/" aria-label="BAJOTERRA, ir al inicio">
+          {/* La marca apunta a la vista que corresponde a la sesión. */}
+          <a className="barra-marca" href={sesionActiva ? "#/panel" : "#/"} aria-label={sesionActiva ? "BAJOTERRA, ir al panel" : "BAJOTERRA, ir al inicio"}>
             <span className="barra-marca__isotipo" aria-hidden="true">
-              <Icono nombre="logoInvernadero" tamano={18} />
+              <Icono nombre="hojaMarca" tamano={26} />
             </span>
             <span className="barra-marca__texto">BAJOTERRA</span>
           </a>
 
-          {/* Separador sutil */}
-          <span className="barra-editorial__divisor-logo" aria-hidden="true" />
-
-          {/* Enlaces de navegación separados por barras verticales (|) */}
-          <nav className="barra-editorial__nav" aria-label="Navegación principal">
-            {ENLACES_NAV.map((enlace, index) => (
-              <React.Fragment key={enlace.href}>
-                <a href={enlace.href} className="barra-editorial__link">
-                  {enlace.texto}
-                </a>
-                {/* Agrega una barra vertical entre cada enlace excepto en el último */}
-                {index < ENLACES_NAV.length - 1 && (
-                  <span className="barra-editorial__separador" aria-hidden="true">
-                    |
-                  </span>
-                )}
-              </React.Fragment>
-            ))}
-          </nav>
+          {/* Las secciones públicas están disponibles al cerrar sesión. */}
+          {!sesionActiva && (
+            <>
+              <span className="barra-editorial__divisor-logo" aria-hidden="true" />
+              <nav className="barra-editorial__nav" aria-label="Navegación principal">
+                {ENLACES_NAV.map((enlace, index) => (
+                  <React.Fragment key={enlace.href}>
+                    <a href={enlace.href} className="barra-editorial__link">{enlace.texto}</a>
+                    {index < ENLACES_NAV.length - 1 && <span className="barra-editorial__separador" aria-hidden="true">|</span>}
+                  </React.Fragment>
+                ))}
+              </nav>
+            </>
+          )}
         </div>
 
-        {/* Lado derecho: Indicador de estado en Tarapacá y botón redondeado al Panel */}
+        {/* Lado derecho: apariencia y acceso al panel. */}
         <div className="barra-editorial__derecha">
-          {/* Indicador discreto de estado físico del sistema */}
-          <div className="barra-editorial__estado" title="Sistema distribuido en Tarapacá operando">
-            <span className="punto-estado punto-estado--lima" aria-hidden="true" />
-            <span className="barra-editorial__estado-texto">Invernadero IoT v3.0 · Tarapacá</span>
-          </div>
+          <button type="button" className="barra-editorial__tema" onClick={alternarTema} aria-pressed={tema === "claro"} aria-label="Modo claro">
+            {tema === "claro" ? <span aria-hidden="true">☾</span> : <Icono nombre="sol" tamano={18} />}
+          </button>
 
-          {/* Botón con contorno redondeado hacia el panel de control */}
-          <a
-            className="boton-contorno-lima"
-            href="#/panel"
-            aria-current={ruta === "panel" ? "page" : undefined}
-          >
-            <span>Ir al Panel</span>
-            <Icono nombre="flecha" tamano={15} />
-          </a>
+          {/* La salida de la vista autenticada pasa por el cierre de sesión. */}
+          {sesionActiva ? (
+            <button type="button" className="boton-contorno-lima" onClick={cerrarSesion} disabled={cerrando}>
+              {cerrando ? "Cerrando…" : "Cerrar sesión"}
+            </button>
+          ) : (
+            <a className="boton-contorno-lima" href="#/panel" aria-current={ruta === "panel" ? "page" : undefined}>
+              <span>Ir al Panel</span>
+              <Icono nombre="flecha" tamano={15} />
+            </a>
+          )}
         </div>
       </div>
     </header>

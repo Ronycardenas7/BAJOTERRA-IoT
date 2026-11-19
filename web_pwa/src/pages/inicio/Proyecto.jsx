@@ -2,31 +2,32 @@
 // BAJOTERRA-IoT · Sección Editorial: "Más que un simple invernadero"
 // Estructura:
 //  - Bloque superior 2 columnas:
-//      · Izquierda: Etiqueta "Sobre el proyecto / Arquitectura" + Título + Párrafos
-//      · Derecha: Fotografía circular grande (border-radius: 50%) con borde lima sutil
+//      · Izquierda: rótulo «Sobre el proyecto», título y descripción
+//      · Derecha: carrusel con las fotografías individuales de los microclimas
 //  - Fila inferior con 5 indicadores destacados (números grandes en blanco + descripción)
 // ============================================================================
 
-import React from "react";
+// Galería reutilizable de los tres microclimas.
+import CarruselZonas from "../../features/zonas/CarruselZonas.jsx";
 
 // Los 5 indicadores destacados de la arquitectura BAJOTERRA-IoT
 const METRICAS_CLAVE = [
   { numero: "3", descripcion: "Microclimas independientes" },
-  { numero: "4", descripcion: "Microcontroladores ESP32" },
+  { numero: "3", descripcion: "Nodos de sensores ESP32" },
   { numero: "24/7", descripcion: "Control autónomo local" },
   { numero: "2.4 GHz", descripcion: "Enlace inalámbrico ESP-NOW" },
-  { numero: "100%", descripcion: "Telemetría en tiempo real" },
+  { numero: "6", descripcion: "Canales de relé" },
 ];
 
 export default function Proyecto() {
   return (
     <section className="seccion-editorial-arquitectura" id="arquitectura" aria-labelledby="titulo-editorial">
       <div className="contenedor">
-        {/* Bloque superior de 2 columnas: Texto + Fotografía Circular */}
+        {/* La descripción del proyecto acompaña a la galería. */}
         <div className="seccion-editorial-arquitectura__top">
           {/* Columna Izquierda: Información editorial de la arquitectura */}
           <div className="seccion-editorial-arquitectura__texto">
-            <p className="rotulo-lima">Sobre el proyecto / Arquitectura</p>
+            <p className="rotulo-lima">Sobre el proyecto</p>
             <h2 id="titulo-editorial" className="seccion-editorial-arquitectura__titulo">
               Más que un simple invernadero
             </h2>
@@ -39,27 +40,7 @@ export default function Proyecto() {
             </p>
           </div>
 
-          {/* Columna Derecha: Fotografía circular grande con borde lima sutil */}
-          <div className="seccion-editorial-arquitectura__circulo-marco">
-            <div className="foto-circular-invernadero">
-              <picture>
-                <source srcSet="/assets/invernadero-real.svg" type="image/svg+xml" />
-                <img
-                  src="/assets/invernadero-real.jpg"
-                  alt="Estructura e interior del invernadero BAJOTERRA"
-                  className="foto-circular-invernadero__img"
-                  loading="lazy"
-                  onError={(e) => {
-                    if (!e.currentTarget.src.endsWith(".svg")) {
-                      e.currentTarget.src = "/assets/invernadero-real.svg";
-                    }
-                  }}
-                />
-              </picture>
-              {/* Anillo de resplandor lima */}
-              <div className="foto-circular-invernadero__anillo" aria-hidden="true" />
-            </div>
-          </div>
+          <CarruselZonas />
         </div>
 
         {/* Fila de 5 Indicadores Destacados (Números grandes en blanco + descripción abajo) */}

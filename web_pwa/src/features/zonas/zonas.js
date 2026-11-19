@@ -1,10 +1,9 @@
-// Datos fijos de presentación de las tres zonas de evaluación (no vienen del backend).
-// Los identificadores coinciden con backend/app/domain/constantes.py y con los temas MQTT.
+// Datos fijos de presentación de las tres zonas registradas en Supabase.
 
 // Lista ordenada de zonas.
 export const ZONAS = [
   {
-    // Identificador técnico (sin tildes), usado en la API y en los temas MQTT.
+    // Identificador técnico sin tildes, usado en las consultas de Supabase.
     id: "arida",
     // Nombre para mostrar.
     nombre: "Zona Árida",
@@ -35,16 +34,16 @@ export const ZONAS = [
     id: "selvatica",
     nombre: "Zona Selvática",
     lema: "Densa vegetación · niveles de CO₂ · luz difusa",
-    descripcion: "Ecosistema de vegetación densa con poca luz directa. Se observa el CO₂ del aire y la luz difusa, que las luces LED complementan.",
-    enfoque: "Prioridad: CO₂ bajo control con el extractor y luz suficiente mediante LED cuando la luz natural es baja.",
+    // La descripción recoge las condiciones ambientales de la zona.
+    descripcion: "Ecosistema de vegetación densa con poca luz directa. Se observa el CO₂ del aire y la luz difusa.",
+    // Prioridades del panel para la zona selvática.
+    enfoque: "Prioridad: vigilar el CO₂ y ventilar con el extractor cuando sube la temperatura.",
     icono: "hoja",
     metricas: ["co2", "luz", "humedad_ambiente", "temperatura"],
-    etiquetas: ["CO₂", "Luz difusa", "Luces LED"],
+    // Etiquetas ambientales de la portada.
+    etiquetas: ["CO₂", "Luz difusa"],
   },
 ];
-
-// Búsqueda rápida por identificador.
-export const ZONA_POR_ID = Object.fromEntries(ZONAS.map((zona) => [zona.id, zona]));
 
 // Lista de identificadores (útil para consultar el historial de cada zona).
 export const IDS_ZONAS = ZONAS.map((zona) => zona.id);

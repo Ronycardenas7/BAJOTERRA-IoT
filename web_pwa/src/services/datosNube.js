@@ -3,7 +3,7 @@
 // Cliente de Supabase.
 import { supabase } from "./supabase.js";
 
-// Convierte una fila de la tabla lecturas_zona al mismo formato que entrega el backend local.
+// Convierte una fila de lecturas_zona al formato del panel.
 export function filaALecturaZona(fila) {
   // Devuelve la lectura con mediciones y actuadores agrupados.
   return {
@@ -23,13 +23,13 @@ export function filaALecturaZona(fila) {
       co2: fila.co2,
       radiacion: fila.radiacion,
     },
-    // Estado REPORTADO por el dispositivo.
-    actuadores: { bomba: fila.bomba, ventilador: fila.ventilador, luces: fila.luces },
+    // Conserva el estado reportado de los actuadores que muestra el panel.
+    actuadores: { bomba: fila.bomba, ventilador: fila.ventilador },
     modo: fila.modo,
   };
 }
 
-// Convierte una fila de lecturas_deposito al formato del backend local.
+// Convierte una fila de lecturas_deposito al formato de la tarjeta.
 export function filaALecturaDeposito(fila) {
   // Devuelve la lectura del depósito.
   return {
@@ -101,7 +101,7 @@ export async function medirDesfaseMs() {
   return Date.parse(data) - (antes + despues) / 2;
 }
 
-// Crea una orden (solo operadores). Devuelve { comando } igual que el backend local.
+// Crea una orden para un operador y devuelve el comando registrado.
 export async function solicitarComandoNube(zona, actuador, estado) {
   // Llama a la función de la base de datos que valida el permiso.
   const { data, error } = await supabase.rpc("solicitar_comando", { p_zona: zona, p_actuador: actuador, p_estado: estado });
@@ -119,6 +119,18 @@ export async function obtenerComandoNube(idComando) {
   if (error) fallar(error);
   // Devuelve la orden.
   return { comando: data };
+}
+
+// Consulta las órdenes recientes de los controles disponibles en el panel.
+export async function historialComandosNube() {
+  const { data, error } = await supabase
+    .from("comandos")
+    .select("id_comando,zona,actuador,estado_solicitado,estado,solicitado_en,caduca_en,dispositivo,origen_confirmacion,detalle")
+    .in("actuador", ["bomba", "ventilador", "modo", "TOBJ", "setpoint"])
+    .order("solicitado_en", { ascending: false })
+    .limit(12);
+  if (error) fallar(error);
+  return data;
 }
 
 // Indica si el usuario con sesión iniciada es operador (puede enviar órdenes).

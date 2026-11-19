@@ -1,66 +1,53 @@
 // ============================================================================
 // BAJOTERRA-IoT · Sección Fila de Módulos / Zonas (4 Columnas)
 // Muestra las 3 zonas reales (Árida, Húmeda, Selvática) más el Depósito Central
-// asegurando simetría en escritorio, y botón centrado "Explorar Panel Completo".
+// en una rejilla que se adapta al ancho de la pantalla.
 // ============================================================================
 
-import React from "react";
+// Tarjetas de los módulos y su catálogo fotográfico.
 import ZonaCard from "../../features/zonas/ZonaCard.jsx";
-import Icono from "../../components/Iconos.jsx";
+import { FOTOS_ZONAS } from "../../config/fotos.js";
 
 // Los 4 módulos físicos del sistema BAJOTERRA-IoT
 const MODULOS_INVERNADERO = [
   {
     id: "arida",
-    titulo: "Zona Árida",
+    titulo: FOTOS_ZONAS.arida.titulo,
     subtitulo: "Módulo derecho kraft/arena · Ambiente seco",
-    imagen: "/assets/plantas/cactus.svg",
+    imagen: FOTOS_ZONAS.arida.imagen,
     especificaciones: [
       "Planta: Cactus (adaptado a estrés hídrico)",
-      "Sustrato: Arena silícea y grava drenante",
       "Régimen: Aire seco con riego dosificado espaciado",
     ],
-    estado: "Operativo",
-    enlace: "#/panel",
   },
   {
     id: "humeda",
-    titulo: "Zona Húmeda",
+    titulo: FOTOS_ZONAS.humeda.titulo,
     subtitulo: "Módulo central verde lima · Ambiente húmedo",
-    imagen: "/assets/plantas/oreja-oso.svg",
+    imagen: FOTOS_ZONAS.humeda.imagen,
     especificaciones: [
-      "Planta: Oreja de Oso y Tagete (brote floral)",
-      "Sustrato: Tierra vegetal con retención de humedad",
+      `Planta: ${FOTOS_ZONAS.humeda.planta}`,
       "Régimen: Micro-riego por pulsos automáticos",
     ],
-    estado: "En riego",
-    enlace: "#/panel",
   },
   {
     id: "selvatica",
-    titulo: "Zona Selvática",
+    titulo: FOTOS_ZONAS.selvatica.titulo,
     subtitulo: "Módulo izquierdo bosque · Follaje denso",
-    imagen: "/assets/plantas/schefflera.svg",
+    imagen: FOTOS_ZONAS.selvatica.imagen,
     especificaciones: [
       "Planta: Schefflera (follaje perenne denso)",
-      "Sustrato: Mezcla enriquecida con humus",
       "Régimen: Ventilación térmica por lazo PI y sombra",
     ],
-    estado: "Lazo PI activo",
-    enlace: "#/panel",
   },
   {
     id: "deposito",
     titulo: "Depósito Central",
     subtitulo: "Sistema Hídrico · Abastecimiento",
-    imagen: "/assets/plantas/deposito.svg",
+    imagen: { src: "/assets/plantas/deposito.svg", alt: "Ilustración del depósito de agua" },
     especificaciones: [
-      "Reserva: Tanque de 50L con sensor de boya",
-      "Bomba: Sumergible 5V con protección anti-atasco",
-      "Régimen: Suministro por electrobombas a demanda",
+      "Reserva de agua para el riego de las zonas",
     ],
-    estado: "Nivel óptimo",
-    enlace: "#/panel",
   },
 ];
 
@@ -84,14 +71,6 @@ export default function Zonas() {
           {MODULOS_INVERNADERO.map((modulo) => (
             <ZonaCard key={modulo.id} modulo={modulo} />
           ))}
-        </div>
-
-        {/* Botón centrado en verde lima: "Explorar Panel Completo" */}
-        <div className="seccion-modulos__accion-central">
-          <a className="boton-solido-lima boton-solido-lima--grande" href="#/panel">
-            <span>Explorar Panel Completo</span>
-            <Icono nombre="flecha" tamano={18} />
-          </a>
         </div>
       </div>
     </section>
