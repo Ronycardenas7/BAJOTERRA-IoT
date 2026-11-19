@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" fill="none" width="100%" height="100%">
+  <!-- Fondo técnico -->
+  <rect width="320" height="240" rx="16" fill="#080C0A" />
+  <rect x="1" y="1" width="318" height="238" rx="15" stroke="#10B981" stroke-opacity="0.2" stroke-width="2" />
+
+  <!-- LADO IZQUIERDO: Mini Bomba Sumergible 5V -->
+  <g transform="translate(15, 20)">
+    <!-- Cuerpo de la bomba -->
+    <rect x="20" y="55" width="85" height="75" rx="6" fill="#1E293B" stroke="#475569" stroke-width="1.5" />
+    
+    <!-- Boquilla de salida superior -->
+    <rect x="50" y="30" width="22" height="26" rx="2" fill="#0EA5E9" stroke="#0284C7" stroke-width="1.2" />
+    <path d="M 61 15 L 61 30" stroke="#38BDF8" stroke-width="3" stroke-linecap="round" />
+    <circle cx="61" cy="12" r="3" fill="#38BDF8" />
+
+    <!-- Entrada lateral de agua con filtro -->
+    <rect x="5" y="80" width="16" height="24" rx="2" fill="#334155" />
+    <line x1="8" y1="84" x2="8" y2="100" stroke="#94A3B8" stroke-width="1" />
+    <line x1="12" y1="84" x2="12" y2="100" stroke="#94A3B8" stroke-width="1" />
+    <line x1="16" y1="84" x2="16" y2="100" stroke="#94A3B8" stroke-width="1" />
+
+    <!-- Ventosas de fijación inferior -->
+    <rect x="35" y="130" width="20" height="8" rx="3" fill="#0F172A" />
+    <rect x="70" y="130" width="20" height="8" rx="3" fill="#0F172A" />
+
+    <!-- Texto identificador -->
+    <text x="62" y="155" fill="#38BDF8" font-family="sans-serif" font-size="9" font-weight="bold" text-anchor="middle">Mini-Bomba 5V</text>
+    <text x="62" y="168" fill="#94A3B8" font-family="sans-serif" font-size="7" text-anchor="middle">Riego por pulsos</text>
+    <text x="62" y="178" fill="#64748B" font-family="monospace" font-size="7" text-anchor="middle">120 L/h · Sumergible</text>
+  </g>
+
+  <!-- LADO DERECHO: Extractor / Ventilador Axial 12V -->
+  <g transform="translate(160, 20)">
+    <!-- Marco cuadrado del ventilador -->
+    <rect x="20" y="40" width="105" height="105" rx="8" fill="#0F172A" stroke="#334155" stroke-width="2" />
+    
+    <!-- Orificios de montaje en las cuatro esquinas -->
+    <circle cx="30" cy="50" r="4" fill="#334155" />
+    <circle cx="115" cy="50" r="4" fill="#334155" />
+    <circle cx="30" cy="135" r="4" fill="#334155" />
+    <circle cx="115" cy="135" r="4" fill="#334155" />
+
+    <!-- Aro interior de la turbina -->
+    <circle cx="72" cy="92" r="42" fill="#1E293B" stroke="#475569" stroke-width="1.2" />
+
+    <!-- Aspas del ventilador (rotación) -->
+    <path d="M 72 92 C 60 70 70 55 85 55 C 80 72 75 85 72 92 Z" fill="#10B981" fill-opacity="0.8" />
+    <path d="M 72 92 C 95 85 110 95 108 110 C 92 104 80 98 72 92 Z" fill="#10B981" fill-opacity="0.8" />
+    <path d="M 72 92 C 70 115 55 125 45 115 C 55 102 65 95 72 92 Z" fill="#10B981" fill-opacity="0.8" />
+
+    <!-- Núcleo central del motor -->
+    <circle cx="72" cy="92" r="14" fill="#0F172A" stroke="#10B981" stroke-width="1.5" />
+    <circle cx="72" cy="92" r="5" fill="#10B981" />
+
+    <!-- Texto identificador -->
+    <text x="72" y="165" fill="#10B981" font-family="sans-serif" font-size="9" font-weight="bold" text-anchor="middle">Extractor Axial</text>
+    <text x="72" y="178" fill="#94A3B8" font-family="sans-serif" font-size="7" text-anchor="middle">Control PI Térmico</text>
+    <text x="72" y="188" fill="#64748B" font-family="monospace" font-size="7" text-anchor="middle">Ventana 30s · PWM</text>
+  </g>
+</svg>

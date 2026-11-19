@@ -1,47 +1,75 @@
-// Barra de navegación fija con efecto vidrio. Mantiene siempre visible el acceso al Panel de Control.
+// ============================================================================
+// BAJOTERRA-IoT · Encabezado Minimalista (Header Verde Bosque + Lima Vibrante)
+// Estructura:
+//  - Izquierda: Isotipo circular invernadero/hoja + Marca BAJOTERRA + enlaces con barra |
+//  - Derecha: Indicador de estado del sistema + Botón de contorno redondeado "Ir al Panel"
+// ============================================================================
 
-// Iconos.
+import React from "react";
 import Icono from "./Iconos.jsx";
 
-// Enlaces de la página de inicio (anclas a las secciones).
-const ENLACES = [
-  { href: "#proyecto", texto: "Proyecto" },
-  { href: "#capacidades", texto: "Capacidades" },
+// Enlaces de navegación con anclas internas separadas por barras verticales (|)
+const ENLACES_NAV = [
+  { href: "#inicio", texto: "Inicio" },
   { href: "#zonas", texto: "Zonas" },
-  { href: "#variables", texto: "Variables" },
+  { href: "#arquitectura", texto: "Arquitectura" },
+  { href: "#hardware", texto: "Hardware" },
 ];
 
-// Props: ruta actual ("inicio" o "panel").
+// Props: ruta actual de la aplicación ("inicio" o "panel")
 export default function Encabezado({ ruta }) {
-  // Devuelve la barra.
   return (
-    // <header> semántico; la clase "barra" la fija arriba y le da el efecto vidrio.
-    <header className="barra">
-      {/* Contenedor centrado. */}
-      <div className="contenedor barra__fila">
-        {/* Marca: vuelve al inicio. */}
-        <a className="marca" href="#/" aria-label="BAJOTERRA, ir al inicio">
-          {/* Icono de hoja. */}
-          <Icono nombre="hoja" tamano={26} />
-          {/* Nombre del proyecto. */}
-          BAJOTERRA
-        </a>
-        {/* Enlaces a las secciones (se ocultan en pantallas angostas). */}
-        <nav className="barra__enlaces" aria-label="Secciones de la página">
-          {ENLACES.map(({ href, texto }) => (
-            // Cada enlace apunta a una ancla de la página de inicio.
-            <a key={href} href={href}>
-              {texto}
-            </a>
-          ))}
-        </nav>
-        {/* Acceso al Panel de Control (se resalta cuando ya se está en él). */}
-        <a className="boton boton--primario" href="#/panel" aria-current={ruta === "panel" ? "page" : undefined}>
-          {/* Texto del botón. */}
-          Panel de Control
-          {/* Flecha. */}
-          <Icono nombre="flecha" tamano={16} />
-        </a>
+    <header className="barra-editorial" role="banner">
+      <div className="contenedor barra-editorial__fila">
+        {/* Lado izquierdo: Isotipo emblemático, Marca y Navegación dividida por barras */}
+        <div className="barra-editorial__izquierda">
+          {/* Logo emblemático con isotipo circular de invernadero en línea fina blanca/lima */}
+          <a className="barra-marca" href="#/" aria-label="BAJOTERRA, ir al inicio">
+            <span className="barra-marca__isotipo" aria-hidden="true">
+              <Icono nombre="logoInvernadero" tamano={18} />
+            </span>
+            <span className="barra-marca__texto">BAJOTERRA</span>
+          </a>
+
+          {/* Separador sutil */}
+          <span className="barra-editorial__divisor-logo" aria-hidden="true" />
+
+          {/* Enlaces de navegación separados por barras verticales (|) */}
+          <nav className="barra-editorial__nav" aria-label="Navegación principal">
+            {ENLACES_NAV.map((enlace, index) => (
+              <React.Fragment key={enlace.href}>
+                <a href={enlace.href} className="barra-editorial__link">
+                  {enlace.texto}
+                </a>
+                {/* Agrega una barra vertical entre cada enlace excepto en el último */}
+                {index < ENLACES_NAV.length - 1 && (
+                  <span className="barra-editorial__separador" aria-hidden="true">
+                    |
+                  </span>
+                )}
+              </React.Fragment>
+            ))}
+          </nav>
+        </div>
+
+        {/* Lado derecho: Indicador de estado en Tarapacá y botón redondeado al Panel */}
+        <div className="barra-editorial__derecha">
+          {/* Indicador discreto de estado físico del sistema */}
+          <div className="barra-editorial__estado" title="Sistema distribuido en Tarapacá operando">
+            <span className="punto-estado punto-estado--lima" aria-hidden="true" />
+            <span className="barra-editorial__estado-texto">Invernadero IoT v3.0 · Tarapacá</span>
+          </div>
+
+          {/* Botón con contorno redondeado hacia el panel de control */}
+          <a
+            className="boton-contorno-lima"
+            href="#/panel"
+            aria-current={ruta === "panel" ? "page" : undefined}
+          >
+            <span>Ir al Panel</span>
+            <Icono nombre="flecha" tamano={15} />
+          </a>
+        </div>
       </div>
     </header>
   );

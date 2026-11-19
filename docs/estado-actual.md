@@ -1,5 +1,23 @@
 # Estado actual
 
+## Revisión de GitHub — 2026-11-19
+
+- Objetivo: contrastar el contexto entregado con `PruebaOnline`, `main` y los archivos locales.
+- GitHub confirmó `PruebaOnline` en `dbc173191aa2463d068085c51ca3eee3677a22d3`, igual al commit local y cuatro commits por delante de `main` (`538dd41`). La portada rediseñada tiene cambios locales pendientes. Esta revisión solo actualizó este registro.
+- El árbol publicado contiene nodos ESP-NOW, Maestro de seis relés y pantalla CYD táctil con UART bidireccional. El Maestro configura telemetría cada 30 s y consulta de órdenes cada 5 s. La migración 0005 está versionada. Flask, MQTT, Docker y simulador siguen en el repositorio como modo local.
+- Verificación documental y estática con GitHub y Git. La consulta de estados del commit no devolvió comprobaciones. En esta revisión no se compiló ni se probó hardware, ni se verificó la aplicación de 0005 en Supabase o un despliegue en Vercel. La compilación que figura más abajo pertenece al registro anterior del rediseño.
+- Próxima comprobación técnica: confirmar la migración 0005 en la nube y probar el recorrido nodo → Maestro → Supabase → panel con una orden confirmada. Antes de usar el sistema en producción, revisar `tls.setInsecure()` en el Maestro, que desactiva la validación del certificado HTTPS.
+
+> **Actualización 2026-11-19:** Rediseño editorial verde bosque profundo + verde lima vibrante (`web_pwa/`, rama `PruebaOnline`).
+> - **Paleta cromática exacta:** Fondo verde bosque oscuro (`#0A1911` a `#0F2418`), superficies en verde musgo (`#122B1D`), acentos CTA en verde lima vibrante (`#B6E33D` / `#C4F042`) y tipografía blanca pura (`#FFFFFF`) con verde salvia claro (`#A7C4B5`).
+> - **Header minimalista (`Encabezado.jsx`):** Isotipo circular de invernadero/hoja, marca BAJOTERRA, enlaces separados por `|` (`Inicio | Zonas | Arquitectura | Hardware`), indicador `Invernadero IoT v3.0 · Tarapacá` y botón contorno lima `Ir al Panel`.
+> - **Hero asimétrico de 2 columnas (`Hero.jsx`):** Título de 3 líneas ("Invernadero inteligente con control microclimático autónomo"), subtítulo breve, botón lima `Abrir Panel en Vivo` y fotografía enmarcada (24px) del invernadero real de 3 módulos (`invernadero-real.jpg`).
+> - **Fila de 4 tarjetas simétricas (`Zonas.jsx` / `ZonaCard.jsx`):** Zona Árida (*Cactus*), Zona Húmeda (*Oreja de Oso y Tagete*), Zona Selvática (*Schefflera*) y Depósito Central (*Sistema Hídrico*), con imagen superior, 3 viñetas, doble píldora (estado en lima y botón `Ver zona`), y botón centrado `Explorar Panel Completo`.
+> - **Editorial "Más que un simple invernadero" + 5 métricas (`Proyecto.jsx`):** Párrafos de autonomía ESP-NOW/Supabase, fotografía circular 50% con resplandor lima y fila de 5 indicadores destacados (`3`, `4`, `24/7`, `2.4 GHz`, `100%`).
+> - **Galería de Hardware del Sistema (`ComponentCarousel.jsx`):** Columna fija izquierda con título/contexto + 3 tarjetas horizontales para ESP32 Maestro & Nodos, Pantalla CYD y Sensores & Relés.
+> - **Variables monitoreadas conectadas (`Variables.jsx`):** 6 círculos simétricos con aro lima y números de paso para Temperatura, Humedad del Aire, Humedad del Sustrato, CO₂, Radiación Solar y Conductividad.
+> - **Compilación web comprobada:** `pnpm run build` en `web_pwa` completado con éxito (0 errores) en 299 ms.
+
 > **Actualización 2026-10-28:** revisión del código antiguo del equipo y preparación del armado físico (PC de la universidad "tecnologia-11", rama `PruebaOnline`).
 > - Revisados los 4 códigos antiguos (cerebro, pantalla, puente serial, Flask/MySQL): qué se adopta y qué no en **D-013**.
 > - Nuevo **`firmware/pantalla/`** (programa final de la CYD): recibe el JSON del controlador por GPIO 22, muestra las 3 zonas rotando y avisa si los datos están viejos. **Compilado** con ILI9341 y con ST7789 (sin advertencias). No probado en la placa ni en Wokwi (Wokwi pidió iniciar sesión en este PC).

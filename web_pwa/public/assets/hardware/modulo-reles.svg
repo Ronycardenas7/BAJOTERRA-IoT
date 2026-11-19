@@ -1,0 +1,72 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 240" fill="none" width="100%" height="100%">
+  <!-- Fondo técnico -->
+  <rect width="320" height="240" rx="16" fill="#080C0A" />
+  <rect x="1" y="1" width="318" height="238" rx="15" stroke="#10B981" stroke-opacity="0.2" stroke-width="2" />
+
+  <!-- Placa PCB del módulo de 6 relés -->
+  <rect x="35" y="30" width="250" height="180" rx="8" fill="#0C1F17" stroke="#10B981" stroke-opacity="0.4" stroke-width="1.5" />
+
+  <!-- 6 Cubos azules de relés de potencia Songle 5V -->
+  <!-- Relé 1: Bomba Selva -->
+  <rect x="45" y="45" width="34" height="65" rx="3" fill="#1D4ED8" stroke="#3B82F6" stroke-width="1.2" />
+  <text x="62" y="75" fill="#FFFFFF" font-family="monospace" font-size="7" font-weight="bold" text-anchor="middle">R1</text>
+  <text x="62" y="90" fill="#93C5FD" font-family="sans-serif" font-size="6" text-anchor="middle">BOMBA</text>
+
+  <!-- Relé 2: Vent Selva -->
+  <rect x="85" y="45" width="34" height="65" rx="3" fill="#1D4ED8" stroke="#3B82F6" stroke-width="1.2" />
+  <text x="102" y="75" fill="#FFFFFF" font-family="monospace" font-size="7" font-weight="bold" text-anchor="middle">R2</text>
+  <text x="102" y="90" fill="#93C5FD" font-family="sans-serif" font-size="6" text-anchor="middle">VENT</text>
+
+  <!-- Relé 3: Bomba Húmeda -->
+  <rect x="125" y="45" width="34" height="65" rx="3" fill="#1D4ED8" stroke="#3B82F6" stroke-width="1.2" />
+  <text x="142" y="75" fill="#FFFFFF" font-family="monospace" font-size="7" font-weight="bold" text-anchor="middle">R3</text>
+  <text x="142" y="90" fill="#93C5FD" font-family="sans-serif" font-size="6" text-anchor="middle">BOMBA</text>
+
+  <!-- Relé 4: Vent Húmeda -->
+  <rect x="165" y="45" width="34" height="65" rx="3" fill="#1D4ED8" stroke="#3B82F6" stroke-width="1.2" />
+  <text x="182" y="75" fill="#FFFFFF" font-family="monospace" font-size="7" font-weight="bold" text-anchor="middle">R4</text>
+  <text x="182" y="90" fill="#93C5FD" font-family="sans-serif" font-size="6" text-anchor="middle">VENT</text>
+
+  <!-- Relé 5: Bomba Árida -->
+  <rect x="205" y="45" width="34" height="65" rx="3" fill="#1D4ED8" stroke="#3B82F6" stroke-width="1.2" />
+  <text x="222" y="75" fill="#FFFFFF" font-family="monospace" font-size="7" font-weight="bold" text-anchor="middle">R5</text>
+  <text x="222" y="90" fill="#93C5FD" font-family="sans-serif" font-size="6" text-anchor="middle">BOMBA</text>
+
+  <!-- Relé 6: Vent Árida -->
+  <rect x="245" y="45" width="34" height="65" rx="3" fill="#1D4ED8" stroke="#3B82F6" stroke-width="1.2" />
+  <text x="262" y="75" fill="#FFFFFF" font-family="monospace" font-size="7" font-weight="bold" text-anchor="middle">R6</text>
+  <text x="262" y="90" fill="#93C5FD" font-family="sans-serif" font-size="6" text-anchor="middle">VENT</text>
+
+  <!-- LEDs indicadores de disparo de cada relé -->
+  <circle cx="62" cy="120" r="3" fill="#10B981" />
+  <circle cx="102" cy="120" r="3" fill="#10B981" />
+  <circle cx="142" cy="120" r="3" fill="#374151" />
+  <circle cx="182" cy="120" r="3" fill="#10B981" />
+  <circle cx="222" cy="120" r="3" fill="#374151" />
+  <circle cx="262" cy="120" r="3" fill="#10B981" />
+
+  <!-- Bornes de conexión superiores (terminales de tornillo verde) -->
+  <g fill="#047857" stroke="#065F46" stroke-width="1">
+    <rect x="47" y="24" width="30" height="18" rx="2" />
+    <rect x="87" y="24" width="30" height="18" rx="2" />
+    <rect x="127" y="24" width="30" height="18" rx="2" />
+    <rect x="167" y="24" width="30" height="18" rx="2" />
+    <rect x="207" y="24" width="30" height="18" rx="2" />
+    <rect x="247" y="24" width="30" height="18" rx="2" />
+  </g>
+
+  <!-- Optoacopladores de aislamiento galvánico -->
+  <g fill="#111827" stroke="#4B5563" stroke-width="0.8">
+    <rect x="52" y="135" width="20" height="14" rx="2" />
+    <rect x="92" y="135" width="20" height="14" rx="2" />
+    <rect x="132" y="135" width="20" height="14" rx="2" />
+    <rect x="172" y="135" width="20" height="14" rx="2" />
+    <rect x="212" y="135" width="20" height="14" rx="2" />
+    <rect x="252" y="135" width="20" height="14" rx="2" />
+  </g>
+  <text x="160" y="165" fill="#10B981" font-family="sans-serif" font-size="8" font-weight="bold" text-anchor="middle">OPTOACOPLAMIENTO 250V / 10A</text>
+
+  <!-- Cabezal de pines IN1..IN6 + VCC + GND -->
+  <rect x="80" y="180" width="160" height="16" rx="2" fill="#1F2937" stroke="#374151" />
+  <text x="160" y="192" fill="#94A3B8" font-family="monospace" font-size="7" text-anchor="middle">IN1 IN2 IN3 IN4 IN5 IN6 VCC GND</text>
+</svg>

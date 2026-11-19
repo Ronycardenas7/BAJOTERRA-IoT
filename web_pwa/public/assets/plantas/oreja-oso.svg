@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 360" width="100%" height="100%" fill="none">
+  <defs>
+    <radialGradient id="glow-humeda" cx="50%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#84cc16" stop-opacity="0.32"/>
+      <stop offset="100%" stop-color="#14532d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="stachys-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a3e635"/>
+      <stop offset="100%" stop-color="#4d7c0f"/>
+    </linearGradient>
+    <linearGradient id="tagete-flower" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#facc15"/>
+      <stop offset="100%" stop-color="#ea580c"/>
+    </linearGradient>
+    <linearGradient id="pot-humeda" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#27272a"/>
+      <stop offset="100%" stop-color="#09090b"/>
+    </linearGradient>
+  </defs>
+  <!-- Resplandor ambiental -->
+  <circle cx="150" cy="150" r="130" fill="url(#glow-humeda)"/>
+
+  <!-- Hojas aterciopeladas de Oreja de Oso (Stachys byzantina) -->
+  <path d="M150 240 C110 200 90 140 130 90 C155 130 160 190 150 240 Z" fill="url(#stachys-grad)" opacity="0.95"/>
+  <path d="M150 240 C180 200 210 140 170 95 C150 135 140 190 150 240 Z" fill="url(#stachys-grad)" opacity="0.9"/>
+  <path d="M150 245 C80 210 60 170 95 130 C125 155 135 210 150 245 Z" fill="url(#stachys-grad)"/>
+  <path d="M150 245 C220 210 240 170 205 130 C175 155 165 210 150 245 Z" fill="url(#stachys-grad)"/>
+  <path d="M150 248 C120 230 70 240 90 200 C120 205 138 225 150 248 Z" fill="url(#stachys-grad)" opacity="0.85"/>
+  <path d="M150 248 C180 230 230 240 210 200 C180 205 162 225 150 248 Z" fill="url(#stachys-grad)" opacity="0.85"/>
+
+  <!-- Tallo y flor de Tagete (amarillo anaranjado vibrante) -->
+  <path d="M150 230 Q160 150 165 70" stroke="#65a30d" stroke-width="4" stroke-linecap="round"/>
+  <!-- Pétalos de la flor Tagete -->
+  <circle cx="165" cy="65" r="22" fill="url(#tagete-flower)"/>
+  <circle cx="155" cy="58" r="12" fill="#fbbf24"/>
+  <circle cx="175" cy="58" r="12" fill="#f59e0b"/>
+  <circle cx="165" cy="74" r="13" fill="#d97706"/>
+  <circle cx="165" cy="65" r="7" fill="#78350f"/>
+
+  <!-- Segundo brote floral -->
+  <path d="M140 220 Q120 160 115 105" stroke="#65a30d" stroke-width="3" stroke-linecap="round"/>
+  <circle cx="115" cy="100" r="15" fill="url(#tagete-flower)"/>
+  <circle cx="115" cy="100" r="6" fill="#78350f"/>
+
+  <!-- Maceta cilíndrica moderna -->
+  <ellipse cx="150" cy="245" rx="54" ry="12" fill="#3f3f46"/>
+  <path d="M100 245 L112 325 Q150 338 188 325 L200 245 Z" fill="url(#pot-humeda)"/>
+  <ellipse cx="150" cy="245" rx="50" ry="10" fill="#18181b"/>
+  <!-- Línea lima de la maceta -->
+  <path d="M111 285 Q150 295 189 285" stroke="#84cc16" stroke-width="2" stroke-opacity="0.8"/>
+</svg>

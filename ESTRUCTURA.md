@@ -127,25 +127,28 @@ BAJOTERRA-IoT/
 │   ├── nginx.conf / Dockerfile    Servidor de la web en modo Docker
 │   ├── public/
 │   │   ├── icono.svg              Icono de la pestaña y de la app
-│   │   └── manifest.webmanifest   Datos para instalar la web como app (PWA)
+│   │   ├── manifest.webmanifest   Datos para instalar la web como app (PWA)
+│   │   └── assets/                Recursos estáticos: plantas/ (botánica), hardware/ (componentes) e invernadero-real
 │   └── src/
 │       ├── main.jsx               Punto de entrada de React
 │       ├── app/
 │       │   ├── App.jsx            Estructura general: barra, página actual y pie
 │       │   └── useRuta.js         Navegación entre Inicio y Panel (#/panel) sin librerías
 │       ├── components/            Piezas reutilizables
-│       │   ├── Encabezado.jsx     Barra fija con efecto vidrio y botón "Panel de Control"
+│       │   ├── Encabezado.jsx     Barra superior minimalista con isotipo circular, enlaces con "|" e indicador Tarapacá
+│       │   ├── ComponentCarousel.jsx  Galería horizontal de hardware físico (columna fija + 3 tarjetas con imágenes)
 │       │   ├── Pie.jsx            Pie de página
-│       │   ├── Iconos.jsx         Iconos SVG propios
+│       │   ├── Iconos.jsx         Iconos SVG minimalistas (estilo CanvasUI e ItsFree.dev)
 │       │   ├── Etiqueta.jsx       Etiquetas de estado (SIMULADO, En línea...)
 │       │   └── LimiteDeError.jsx  Evita la página en blanco si algo falla
 │       ├── pages/
-│       │   ├── Inicio.jsx         Página de inicio (une las secciones)
-│       │   ├── inicio/            Secciones: Hero, Proyecto, Capacidades, ZonasEvaluacion, Variables, LlamadaFinal
-│       │   └── Panel.jsx          Panel de Control: 3 zonas + depósito
+│       │   ├── Inicio.jsx         Landing page editorial verde bosque + lima (Hero 2 col, Zonas 4 col, Proyecto, Hardware, Variables)
+│       │   ├── inicio/            Secciones: Hero.jsx, Zonas.jsx, Proyecto.jsx, Variables.jsx
+│       │   └── Panel.jsx          Panel de Control: 3 zonas + depósito en tiempo real
 │       ├── features/
 │       │   ├── zonas/zonas.js     Nombre, color, descripción y métricas destacadas de cada zona
-│       │   ├── zonas/TarjetaZona.jsx       Tarjeta de una zona en el panel
+│       │   ├── zonas/ZonaCard.jsx Tarjeta de módulo editorial con imagen enmarcada, viñetas y doble píldora
+│       │   ├── zonas/TarjetaZona.jsx       Tarjeta de una zona en el panel de control
 │       │   ├── telemetria/useResumen.js    Consulta el backend cada 3 s y guarda el historial para los gráficos
 │       │   ├── telemetria/Metrica.jsx      Recuadro de una medición con su gráfico
 │       │   ├── telemetria/Sparkline.jsx    Gráfico de línea liviano (SVG)
@@ -159,7 +162,7 @@ BAJOTERRA-IoT/
 │       ├── services/datosNube.js  Consultas, tiempo real (Realtime), órdenes y hora del servidor en Supabase
 │       ├── features/sesion/       Inicio de sesión (Acceso.jsx) y sesión/permiso de operador (useSesion.js)
 │       ├── features/telemetria/useResumenNube.js  Datos del panel en modo nube (Realtime + corrección del reloj)
-│       └── styles/global.css      Todos los estilos (tema oscuro, colores por zona)
+│       └── styles/global.css      Estilos globales: Verde Bosque Profundo (#0A1911 a #0F2418) + Verde Lima Vibrante (#B6E33D)
 │
 ├── firmware/                      Código del ESP32 (Arduino C++)
 │   ├── README.md                  Cómo probar en Wokwi o en una placa real

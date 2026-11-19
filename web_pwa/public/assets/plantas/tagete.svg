@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 360" width="100%" height="100%" fill="none">
+  <defs>
+    <radialGradient id="glow-tagete" cx="50%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#eab308" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#15803d" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="tagete-foliage" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#22c55e"/>
+      <stop offset="100%" stop-color="#14532d"/>
+    </linearGradient>
+    <linearGradient id="tagete-bloom" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#fde047"/>
+      <stop offset="50%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#b45309"/>
+    </linearGradient>
+  </defs>
+  <!-- Resplandor dorado -->
+  <circle cx="150" cy="140" r="130" fill="url(#glow-tagete)"/>
+
+  <!-- Follaje denso y tallos -->
+  <path d="M150 240 Q130 180 120 120" stroke="#15803d" stroke-width="4" stroke-linecap="round"/>
+  <path d="M150 240 Q165 170 175 100" stroke="#15803d" stroke-width="4" stroke-linecap="round"/>
+  <path d="M150 240 Q145 160 145 75" stroke="#15803d" stroke-width="4.5" stroke-linecap="round"/>
+
+  <!-- Hojas pinnadas finas -->
+  <path d="M125 190 Q90 170 100 150 Q120 170 130 180" fill="url(#tagete-foliage)"/>
+  <path d="M160 180 Q195 160 190 140 Q170 160 158 175" fill="url(#tagete-foliage)"/>
+  <path d="M120 140 Q85 125 95 105 Q115 125 125 135" fill="url(#tagete-foliage)"/>
+  <path d="M165 130 Q200 115 195 95 Q175 115 165 125" fill="url(#tagete-foliage)"/>
+
+  <!-- Flores Tagete carnosas (pompones dorados) -->
+  <!-- Flor central alta -->
+  <circle cx="145" cy="70" r="26" fill="url(#tagete-bloom)"/>
+  <circle cx="137" cy="62" r="14" fill="#fef08a"/>
+  <circle cx="153" cy="62" r="14" fill="#facc15"/>
+  <circle cx="145" cy="80" r="15" fill="#f59e0b"/>
+  <circle cx="145" cy="70" r="8" fill="#78350f"/>
+
+  <!-- Flor lateral izquierda -->
+  <circle cx="115" cy="115" r="20" fill="url(#tagete-bloom)"/>
+  <circle cx="115" cy="115" r="7" fill="#78350f"/>
+
+  <!-- Flor lateral derecha -->
+  <circle cx="180" cy="98" r="22" fill="url(#tagete-bloom)"/>
+  <circle cx="180" cy="98" r="7.5" fill="#78350f"/>
+
+  <!-- Maceta minimalista -->
+  <ellipse cx="150" cy="245" rx="54" ry="12" fill="#27272a"/>
+  <path d="M100 245 L112 325 Q150 338 188 325 L200 245 Z" fill="#18181b"/>
+  <ellipse cx="150" cy="245" rx="50" ry="10" fill="#09090b"/>
+  <path d="M111 285 Q150 295 189 285" stroke="#eab308" stroke-width="2" stroke-opacity="0.85"/>
+</svg>
