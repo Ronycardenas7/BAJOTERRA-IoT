@@ -6,7 +6,7 @@ Este documento explica cómo funciona, qué está hecho y cómo lo verá cada pe
 ## 1. Cómo viajan los datos
 
 ```
-ESP32 o simulador ──HTTPS (registrar_lectura)──► Supabase: tablas lecturas_zona / lecturas_deposito
+ESP32 ──HTTPS (registrar_lectura)──► Supabase: tablas lecturas_zona / lecturas_deposito
         ▲                                                │
         │                                                └──Realtime (WebSocket)──► Web ──► celular o PC de cada persona
         └──HTTPS (comandos_pendientes / confirmar_comando)◄── tabla comandos ◄──(solicitar_comando)── Web (operador)
@@ -18,7 +18,7 @@ ESP32 o simulador ──HTTPS (registrar_lectura)──► Supabase: tablas lect
 - **Tiempo real:** Supabase Realtime avisa a la web cada vez que se guarda una lectura, y la pantalla se actualiza sola en 1 a 2 segundos.
 - **Órdenes:** un usuario **operador** pulsa un botón y se crea una fila en `comandos`, con 30 s de vigencia. El ESP32 la consulta cada 5 s, la ejecuta y la confirma.
   Una orden pendiente **no** es un actuador encendido: el estado real es el que reporta el dispositivo.
-- **Hora:** el ESP32 usa NTP. El simulador y la web comparan su reloj con la función `hora_servidor` y corrigen el desfase.
+- **Hora:** el ESP32 usa NTP. La web compara su reloj con la función `hora_servidor` y corrige el desfase.
   Esto se agregó porque el PC de la universidad tenía el reloj adelantado unos 54 minutos.
 
 ## 2. Seguridad
@@ -26,7 +26,7 @@ ESP32 o simulador ──HTTPS (registrar_lectura)──► Supabase: tablas lect
 | Qué | Cómo |
 |---|---|
 | Leer datos | Solo usuarios con **sesión iniciada** (RLS). Sin sesión, la API responde "permission denied". |
-| Enviar órdenes | Solo usuarios en la tabla `operadores` (la función `solicitar_comando` lo comprueba). |
+| Enviar órdenes | Solo usuarios en la tabla `operadores`. La migración 0006 agrega automáticamente las cuentas con correo confirmado y `solicitar_comando` verifica el permiso con la sesión. |
 | Escribir lecturas | Solo a través de las funciones, con una **clave de dispositivo** válida. Nadie puede insertar directo en las tablas. |
 | Claves de dispositivo | Se guardan solo como hash SHA-256 en el esquema `privado` (no expuesto). Se crean con `privado.crear_dispositivo(...)`, que muestra la clave **una sola vez**, y se anulan con `privado.revocar_dispositivo('id')`. |
 | Simulador | Su clave solo puede enviar datos con origen `simulado`: un simulador no puede hacerse pasar por hardware real. |
@@ -43,20 +43,13 @@ Limitación conocida: en la Prueba 02 el ESP32 cifra la conexión, pero no verif
 1. Abre la web y entra al **Panel de Control**.
 2. **Crea una cuenta** (correo y contraseña) y la confirma con el enlace que llega al correo. Después **entra**.
 3. Ve las tres zonas y el depósito. Los valores y gráficos se mueven solos al llegar datos nuevos, y cada dato dice si es **REAL** o **SIMULADO**.
-4. Si su cuenta es **operador**, puede encender o apagar bomba, extractor y luces. Si no, la cuenta es de **solo lectura**.
-
-Para dar permiso de operador a una cuenta (Supabase > SQL Editor):
-
-```sql
-insert into public.operadores (usuario)
-select id from auth.users where email = 'correo@ejemplo.com'
-on conflict do nothing;
-```
+4. Al confirmar su correo, la cuenta obtiene permiso de operador. Los controles se habilitan cuando la zona está en línea y tiene lecturas recientes. La sección **Órdenes recientes** permite revisar las solicitudes y si el dispositivo respondió.
+5. Si olvida su contraseña, usa **¿Olvidaste tu contraseña?**. Supabase Auth envía el enlace y guarda la nueva contraseña. Para verificar la entrega a usuarios externos se necesitan un proveedor SMTP autorizado y el dominio web permitido en la configuración de redirecciones.
 
 **Para que otras personas entren desde su celular falta publicar la web** con una dirección pública (Vercel, Netlify o GitHub Pages; ver el paso 5 abajo).
 Mientras tanto, la web corre en tu PC y solo tú la abres, aunque los datos ya estén en la nube.
 
-## 4. Estado de cada pieza
+## 4. Registro de pruebas iniciales
 
 | Pieza | Estado |
 |---|---|
@@ -68,7 +61,7 @@ Mientras tanto, la web corre en tu PC y solo tú la abres, aunque los datos ya e
 
 ## 5. Próximos pasos
 
-1. Ejecutar en tu PC el simulador en modo nube y la web en modo nube; crear tu cuenta y darte permiso de operador.
+1. Iniciar el panel web y verificar que aparezcan las lecturas que envía el ESP32. Comprobar el acceso con una cuenta de operador.
 2. Probar la Prueba 02 en Wokwi o en la placa.
 3. Publicar la web (Vercel, Netlify o GitHub Pages) para que cualquiera la abra desde su celular.
 4. Fijar el certificado raíz en el ESP32.

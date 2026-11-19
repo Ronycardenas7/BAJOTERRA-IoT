@@ -1,0 +1,466 @@
+{
+  "version": 1,
+  "author": "BAJOTERRA",
+  "editor": "wokwi",
+  "parts": [
+    {
+      "type": "wokwi-esp32-devkit-v1",
+      "id": "esp",
+      "top": 0,
+      "left": 0,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-dht22",
+      "id": "dht_arida",
+      "top": -150,
+      "left": -250,
+      "attrs": {
+        "temperature": "28",
+        "humidity": "35"
+      }
+    },
+    {
+      "type": "wokwi-dht22",
+      "id": "dht_humeda",
+      "top": -150,
+      "left": -150,
+      "attrs": {
+        "temperature": "26",
+        "humidity": "70"
+      }
+    },
+    {
+      "type": "wokwi-dht22",
+      "id": "dht_selvatica",
+      "top": -150,
+      "left": -50,
+      "attrs": {
+        "temperature": "27",
+        "humidity": "90"
+      }
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "suelo_arida",
+      "top": 200,
+      "left": -300,
+      "attrs": {
+        "value": "614"
+      }
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "suelo_humeda",
+      "top": 200,
+      "left": -200,
+      "attrs": {
+        "value": "716"
+      }
+    },
+    {
+      "type": "wokwi-potentiometer",
+      "id": "suelo_selvatica",
+      "top": 200,
+      "left": -100,
+      "attrs": {
+        "value": "307"
+      }
+    },
+    {
+      "type": "wokwi-relay-module",
+      "id": "rele1_bomba1",
+      "top": -100,
+      "left": 250,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led_rele1_bomba1",
+      "top": -110,
+      "left": 420,
+      "attrs": {
+        "color": "blue",
+        "label": "rele1_bomba1"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r_rele1_bomba1",
+      "top": -60,
+      "left": 440,
+      "attrs": {
+        "value": "220"
+      }
+    },
+    {
+      "type": "wokwi-relay-module",
+      "id": "rele2_bomba2",
+      "top": -10,
+      "left": 250,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led_rele2_bomba2",
+      "top": -20,
+      "left": 420,
+      "attrs": {
+        "color": "blue",
+        "label": "rele2_bomba2"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r_rele2_bomba2",
+      "top": 30,
+      "left": 440,
+      "attrs": {
+        "value": "220"
+      }
+    },
+    {
+      "type": "wokwi-relay-module",
+      "id": "rele3_vent1",
+      "top": 80,
+      "left": 250,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led_rele3_vent1",
+      "top": 70,
+      "left": 420,
+      "attrs": {
+        "color": "cyan",
+        "label": "rele3_vent1"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r_rele3_vent1",
+      "top": 120,
+      "left": 440,
+      "attrs": {
+        "value": "220"
+      }
+    },
+    {
+      "type": "wokwi-relay-module",
+      "id": "rele4_vent2",
+      "top": 170,
+      "left": 250,
+      "attrs": {}
+    },
+    {
+      "type": "wokwi-led",
+      "id": "led_rele4_vent2",
+      "top": 160,
+      "left": 420,
+      "attrs": {
+        "color": "cyan",
+        "label": "rele4_vent2"
+      }
+    },
+    {
+      "type": "wokwi-resistor",
+      "id": "r_rele4_vent2",
+      "top": 210,
+      "left": 440,
+      "attrs": {
+        "value": "220"
+      }
+    }
+  ],
+  "connections": [
+    [
+      "esp:TX0",
+      "$serialMonitor:RX",
+      "",
+      []
+    ],
+    [
+      "esp:RX0",
+      "$serialMonitor:TX",
+      "",
+      []
+    ],
+    [
+      "dht_arida:VCC",
+      "esp:3V3",
+      "red",
+      []
+    ],
+    [
+      "dht_arida:GND",
+      "esp:GND.1",
+      "black",
+      []
+    ],
+    [
+      "dht_arida:SDA",
+      "esp:D4",
+      "green",
+      []
+    ],
+    [
+      "dht_humeda:VCC",
+      "esp:3V3",
+      "red",
+      []
+    ],
+    [
+      "dht_humeda:GND",
+      "esp:GND.1",
+      "black",
+      []
+    ],
+    [
+      "dht_humeda:SDA",
+      "esp:RX2",
+      "green",
+      []
+    ],
+    [
+      "dht_selvatica:VCC",
+      "esp:3V3",
+      "red",
+      []
+    ],
+    [
+      "dht_selvatica:GND",
+      "esp:GND.1",
+      "black",
+      []
+    ],
+    [
+      "dht_selvatica:SDA",
+      "esp:D13",
+      "green",
+      []
+    ],
+    [
+      "suelo_arida:VCC",
+      "esp:3V3",
+      "red",
+      []
+    ],
+    [
+      "suelo_arida:GND",
+      "esp:GND.1",
+      "black",
+      []
+    ],
+    [
+      "suelo_arida:SIG",
+      "esp:D34",
+      "orange",
+      []
+    ],
+    [
+      "suelo_humeda:VCC",
+      "esp:3V3",
+      "red",
+      []
+    ],
+    [
+      "suelo_humeda:GND",
+      "esp:GND.1",
+      "black",
+      []
+    ],
+    [
+      "suelo_humeda:SIG",
+      "esp:D35",
+      "orange",
+      []
+    ],
+    [
+      "suelo_selvatica:VCC",
+      "esp:3V3",
+      "red",
+      []
+    ],
+    [
+      "suelo_selvatica:GND",
+      "esp:GND.1",
+      "black",
+      []
+    ],
+    [
+      "suelo_selvatica:SIG",
+      "esp:VP",
+      "orange",
+      []
+    ],
+    [
+      "rele1_bomba1:VCC",
+      "esp:VIN",
+      "red",
+      []
+    ],
+    [
+      "rele1_bomba1:GND",
+      "esp:GND.2",
+      "black",
+      []
+    ],
+    [
+      "rele1_bomba1:IN",
+      "esp:D25",
+      "purple",
+      []
+    ],
+    [
+      "rele1_bomba1:COM",
+      "esp:3V3",
+      "red",
+      []
+    ],
+    [
+      "rele1_bomba1:NO",
+      "led_rele1_bomba1:A",
+      "yellow",
+      []
+    ],
+    [
+      "led_rele1_bomba1:C",
+      "r_rele1_bomba1:1",
+      "black",
+      []
+    ],
+    [
+      "r_rele1_bomba1:2",
+      "esp:GND.2",
+      "black",
+      []
+    ],
+    [
+      "rele2_bomba2:VCC",
+      "esp:VIN",
+      "red",
+      []
+    ],
+    [
+      "rele2_bomba2:GND",
+      "esp:GND.2",
+      "black",
+      []
+    ],
+    [
+      "rele2_bomba2:IN",
+      "esp:D26",
+      "purple",
+      []
+    ],
+    [
+      "rele2_bomba2:COM",
+      "esp:3V3",
+      "red",
+      []
+    ],
+    [
+      "rele2_bomba2:NO",
+      "led_rele2_bomba2:A",
+      "yellow",
+      []
+    ],
+    [
+      "led_rele2_bomba2:C",
+      "r_rele2_bomba2:1",
+      "black",
+      []
+    ],
+    [
+      "r_rele2_bomba2:2",
+      "esp:GND.2",
+      "black",
+      []
+    ],
+    [
+      "rele3_vent1:VCC",
+      "esp:VIN",
+      "red",
+      []
+    ],
+    [
+      "rele3_vent1:GND",
+      "esp:GND.2",
+      "black",
+      []
+    ],
+    [
+      "rele3_vent1:IN",
+      "esp:D27",
+      "purple",
+      []
+    ],
+    [
+      "rele3_vent1:COM",
+      "esp:3V3",
+      "red",
+      []
+    ],
+    [
+      "rele3_vent1:NO",
+      "led_rele3_vent1:A",
+      "yellow",
+      []
+    ],
+    [
+      "led_rele3_vent1:C",
+      "r_rele3_vent1:1",
+      "black",
+      []
+    ],
+    [
+      "r_rele3_vent1:2",
+      "esp:GND.2",
+      "black",
+      []
+    ],
+    [
+      "rele4_vent2:VCC",
+      "esp:VIN",
+      "red",
+      []
+    ],
+    [
+      "rele4_vent2:GND",
+      "esp:GND.2",
+      "black",
+      []
+    ],
+    [
+      "rele4_vent2:IN",
+      "esp:D32",
+      "purple",
+      []
+    ],
+    [
+      "rele4_vent2:COM",
+      "esp:3V3",
+      "red",
+      []
+    ],
+    [
+      "rele4_vent2:NO",
+      "led_rele4_vent2:A",
+      "yellow",
+      []
+    ],
+    [
+      "led_rele4_vent2:C",
+      "r_rele4_vent2:1",
+      "black",
+      []
+    ],
+    [
+      "r_rele4_vent2:2",
+      "esp:GND.2",
+      "black",
+      []
+    ]
+  ],
+  "dependencies": {}
+}

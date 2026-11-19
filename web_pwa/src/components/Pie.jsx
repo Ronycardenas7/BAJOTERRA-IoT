@@ -11,7 +11,7 @@ export default function Pie() {
         {/* Nombre y año. */}
         <span>BAJOTERRA · Invernadero inteligente · Iquique, Tarapacá</span>
         {/* Aviso: mientras no haya hardware, todo es simulación. */}
-        <span>Proyecto en desarrollo: los datos provienen del simulador, no de sensores reales.</span>
+        <span>Invernadero IoT · Telemetría en Supabase</span>
       </div>
     </footer>
   );

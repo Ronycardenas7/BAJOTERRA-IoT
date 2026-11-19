@@ -9,40 +9,57 @@ import { NOMBRES_ACTUADOR, describirComando } from "../telemetria/formato.js";
 import Etiqueta from "../../components/Etiqueta.jsx";
 import Icono from "../../components/Iconos.jsx";
 
-// Actuadores disponibles con su icono (los nombres salen de NOMBRES_ACTUADOR).
+// Controles de encendido y apagado para la bomba y el extractor.
 const ACTUADORES = [
   { id: "bomba", icono: "gota" },
   { id: "ventilador", icono: "ventilador" },
-  { id: "luces", icono: "bombilla" },
 ];
 
 // Traduce el estado reportado a texto. null significa que el dispositivo no lo informó.
 function textoEstado(estado) {
-  // Estados conocidos.
-  if (estado === "encendido") return "Encendido";
-  if (estado === "apagado") return "Apagado";
+  // La telemetría puede informar el estado como texto o como booleano.
+  if (estado === "encendido" || estado === true) return "Encendido";
+  if (estado === "apagado" || estado === false) return "Apagado";
   // Dato ausente: no se inventa.
   return "Sin dato";
 }
 
 // Props: zona, actuadores (estado reportado), modo, habilitado (hay datos frescos) y motivo (por qué no).
-export default function PanelActuadores({ zona, actuadores, modo, habilitado, motivo }) {
+export default function PanelActuadores({ zona, actuadores, modo, recibidoEn, habilitado, motivo }) {
   // Estado de las órdenes de esta zona.
   const { comando, error, enviando, pendiente, enviar } = useComando(zona);
   // Descripción de la última orden (o null).
   const descripcion = describirComando(comando);
   // Los botones se bloquean mientras se envía o hay una orden pendiente, o si no hay datos frescos.
   const bloqueado = enviando || pendiente || !habilitado;
+  // Usa la confirmación del Maestro hasta que una lectura más reciente informe el modo.
+  const confirmacionReciente = comando?.actuador === "modo" &&
+    comando.estado === "ejecutado" && Date.parse(comando.confirmado_en) > (Date.parse(recibidoEn) || 0);
+  const modoActual = confirmacionReciente ? comando.estado_solicitado : modo;
+  const siguienteModo = modoActual === "manual" ? "automatico" : "manual";
+  // El Maestro gobierna el riego y el extractor con el mismo modo de zona.
+  const estadoRiego = modoActual === "automatico" ? "Activo" : modoActual === "manual" ? "Desactivado" : "Sin dato";
 
   // Devuelve el panel.
   return (
     <div className="actuadores">
-      {/* Encabezado del panel con el modo de la zona. */}
-      <div className="actuadores__titulo">
+      {/* Encabezado del panel con el modo de la zona y botón para alternarlo. */}
+      <div className="actuadores__titulo" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: "8px" }}>
         {/* Título. */}
         <h3>Actuadores</h3>
-        {/* Modo reportado por el dispositivo. */}
-        <Etiqueta tono="neutro">Modo: {modo === "manual" ? "manual" : modo === "automatico" ? "automático" : "sin dato"}</Etiqueta>
+        {/* Modo informado o confirmado por el dispositivo y botón para alternar. */}
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <Etiqueta tono={modoActual === "manual" ? "aviso" : "neutro"}>Modo: {modoActual === "manual" ? "manual" : modoActual === "automatico" ? "automático" : "sin dato"}</Etiqueta>
+          <button
+            type="button"
+            disabled={bloqueado}
+            onClick={() => enviar("modo", siguienteModo)}
+            title="Cambiar modo de control de la zona"
+            style={{ padding: "4px 8px", fontSize: "0.75rem", cursor: "pointer" }}
+          >
+            {siguienteModo === "automatico" ? "Pasar a Automático" : "Pasar a Manual"}
+          </button>
+        </div>
       </div>
       {/* Una fila por actuador. */}
       {ACTUADORES.map(({ id, icono }) => (
@@ -57,7 +74,7 @@ export default function PanelActuadores({ zona, actuadores, modo, habilitado, mo
               <strong>{NOMBRES_ACTUADOR[id]}</strong>
               {/* Punto de color + texto del estado reportado (el texto siempre está: el color no es la única señal). */}
               <span className="actuador__estado">
-                <i className={`led${actuadores?.[id] === "encendido" ? " led--encendido" : ""}`} aria-hidden="true" />
+                <i className={`led${textoEstado(actuadores?.[id]) === "Encendido" ? " led--encendido" : ""}`} aria-hidden="true" />
                 Reportado: {textoEstado(actuadores?.[id])}
               </span>
             </div>
@@ -75,6 +92,56 @@ export default function PanelActuadores({ zona, actuadores, modo, habilitado, mo
           </div>
         </div>
       ))}
+      {/* La automatización se cambia mediante el modo, sin mandar un pulso a la bomba. */}
+      <div className="actuador">
+        <div className="actuador__nombre">
+          <Icono nombre="gota" tamano={20} />
+          <div>
+            <strong>Riego automático</strong>
+            <span className="actuador__estado">Automatización: {estadoRiego}</span>
+            <span className="actuador__estado">Comparte el modo con el extractor.</span>
+          </div>
+        </div>
+        <div className="actuador__botones">
+          <button
+            type="button"
+            disabled={bloqueado || modoActual === "automatico"}
+            onClick={() => enviar("modo", "automatico")}
+            aria-label="Encender riego automático"
+          >
+            Encender
+          </button>
+          <button
+            type="button"
+            disabled={bloqueado || modoActual === "manual"}
+            onClick={() => enviar("modo", "manual")}
+            aria-label="Apagar riego automático"
+          >
+            Apagar
+          </button>
+        </div>
+      </div>
+      {/* Control de Temperatura Objetivo (TOBJ) para el algoritmo PI del Maestro. */}
+      <div className="actuador" key="tobj">
+        <div className="actuador__nombre">
+          <Icono nombre="termometro" tamano={20} />
+          <div>
+            <strong>Temp. Objetivo (TOBJ)</strong>
+            <span className="actuador__estado">Ajustar consigna del ventilador</span>
+          </div>
+        </div>
+        <div className="actuador__botones" style={{ display: "flex", gap: "4px" }}>
+          <button type="button" disabled={bloqueado} onClick={() => enviar("TOBJ", "22.0")} title="Ajustar consigna a 22.0 °C">
+            22°C
+          </button>
+          <button type="button" disabled={bloqueado} onClick={() => enviar("TOBJ", "24.0")} title="Ajustar consigna a 24.0 °C">
+            24°C
+          </button>
+          <button type="button" disabled={bloqueado} onClick={() => enviar("TOBJ", "26.0")} title="Ajustar consigna a 26.0 °C">
+            26°C
+          </button>
+        </div>
+      </div>
       {/* Si los botones están bloqueados por falta de datos frescos, se explica el motivo. */}
       {!habilitado && <p className="actuadores__nota">Órdenes bloqueadas: {motivo}</p>}
       {/* Resultado de la última orden, con su tono. */}
@@ -84,7 +151,7 @@ export default function PanelActuadores({ zona, actuadores, modo, habilitado, mo
           {descripcion.texto}
         </p>
       )}
-      {/* Error al pedir la orden (por ejemplo, broker caído). */}
+      {/* Error devuelto al solicitar una orden. */}
       {error && (
         // role="alert" anuncia el error de inmediato.
         <p className="orden orden--malo" role="alert">

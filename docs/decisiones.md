@@ -69,9 +69,49 @@ Registro de decisiones del proyecto. Cada una indica su estado: **acordada** (el
 - Reloj: se agregó `hora_servidor()` (0003) porque un PC con la hora mal configurada fechaba mal las lecturas y la web veía todo como desactualizado.
 - Limitación conocida: el firmware de la Prueba 02 no verifica el certificado TLS (`setInsecure`). Pendiente de corregir.
 
+## D-011 — Hardware real: 2 ESP32 con cable, 3 zonas (acordada, 2026-10-27)
+
+- Sin sensores inalámbricos (no se pueden conseguir). Todo va con cable.
+- La "pantalla" ESP32-2432S028 es una **ESP32 con pantalla integrada (CYD)**. Arquitectura: la **DevKit** es el controlador (sensores, relés, nube) y la **CYD** es la pantalla, que recibe datos por **UART de un solo sentido** (DevKit GPIO 17 → CYD GPIO 22; antes se planeó el 35, ver D-013). La pantalla funciona sin internet.
+- 3 zonas (árida, húmeda, selvática) con el inventario: 2 DHT22 (**falta 1 para la selvática**), 3 sondas de suelo resistivas, 2 bombas, 2 ventiladores y 4 relés. Asignación inicial: bomba 1 → húmeda, bomba 2 → selvática, ventilador 1 → árida, ventilador 2 → selvática. La árida queda con riego manual. Es configurable.
+- No hay sensor de luz por zona; el LDR integrado de la CYD se usará como luz relativa (%) del invernadero, no en lux. CO₂ y radiación quedan `null` con hardware real.
+- Sondas de suelo alimentadas desde un GPIO solo al medir (contra la corrosión). Bombas y ventiladores con fuente de 5 V aparte y GND común (contra los reinicios).
+- Pantalla con la biblioteca Adafruit ILI9341 (en lugar de TFT_eSPI, que exige editar archivos de la biblioteca).
+- Detalle completo: `docs/plan-hardware.md`.
+
+## D-012 — Un dispositivo "controlador" para las 3 zonas (provisional, 2026-10-27)
+
+- Migración `0004_dispositivo_controlador.sql` (**aplicada en Supabase** el 2026-10-27): nuevo tipo de dispositivo `controlador`. Una sola clave escribe en cualquier zona o depósito (el mensaje indica `"zona"`), ve las órdenes de todas las zonas y puede declarar origen `real`. Su campo `dispositivo` siempre es su propio id (no puede hacerse pasar por otro).
+- Dispositivos creados: `esp32-controlador-01` (placa física) y `wokwi-controlador-01` (solo simulación; clave aparte para poder revocarla sin tocar la placa). Las claves están solo en archivos ignorados por Git en el PC del usuario.
+- Motivo: sin sensores inalámbricos, una sola ESP32 con cable lee las 3 zonas (D-011); con 3 claves habría que fingir 3 dispositivos.
+- Firmware `firmware/controlador/` v1: control local primero (funciona sin internet); en Wokwi los datos van como `simulado`.
+
+## D-013 — Revisión del código antiguo del equipo (provisional, 2026-10-28)
+
+El usuario entregó 4 archivos del prototipo anterior ("cerebro", "pantalla", "puente serial" y "base de datos"). Hallazgos y qué se usa:
+
+- **Cerebro (ESP32):** leía 2 sondas de suelo (pines 34 y 32) y 2 LDR (35 y 33) y enviaba líneas con comas por Serial2 (TX 17). La temperatura era **fija en 25,0** (los DS18B20 se iniciaban pero no se leían) y los actuadores **nunca se encendían** (siempre `false`), con `delay(2000)` bloqueante. No era un control funcional.
+  **Se adopta:** la calibración medida de las sondas (seco 4095, mojado **1480**) y el TX en GPIO 17 (ya era nuestro pin).
+- **Pantalla (CYD):** TFT_eSPI, rotación horizontal, `invertDisplay(true)`, RX en **GPIO 22** y diseño con tarjetas grises, banner de color por cultivo y cambio automático cada 3 s.
+  **Se adopta:** RX en GPIO 22 (antes planeábamos 35), `invertDisplay(true)` y el diseño (ahora para 3 zonas, en `firmware/pantalla/`).
+  **No se adopta:** TFT_eSPI (exige editar `User_Setup.h` en cada PC; se siguen usando las bibliotecas de Adafruit) y el formato con comas (se usa el JSON del controlador). Detalle corregido: el código antiguo abría Serial2 con TX en GPIO 21, que es la luz de fondo; ahora TX = -1.
+- **Puente serial (Python) + Flask/MySQL:** reemplazados por Supabase (D-010). Problemas encontrados: la expresión regular del puente esperaba un texto ("Enviado M1: ...") que el cerebro no imprimía, y **inventaba la luz** (550 y 850) como si fuera medición; MySQL con usuario root sin contraseña, clave secreta escrita en el código y `debug=True`.
+  **Idea que se rescata (pendiente):** umbrales editables desde la web (tabla `configuracion`). Hoy los umbrales están fijos en `firmware/controlador/config.h`.
+
+## D-014 — Protección contra inundación en el riego automático (provisional, 2026-10-28)
+
+- Además del límite de 20 s por riego y 30 s de descanso, si 3 riegos automáticos seguidos no suben la humedad del suelo al menos 3 puntos, la bomba de esa zona se **bloquea 1 hora** y el Monitor Serie muestra `[ALERTA]`.
+- Motivo: con la sonda fuera de la tierra, la manguera suelta o el depósito vacío, el control seguiría regando para siempre en ciclos de 20 s.
+- Lecturas crudas fuera de 50–4080 se toman como "sonda desconectada" y no se riega (configurable en `config.h`). Falta mostrar el bloqueo en la web.
+
 ## Pendientes de decisión
 
-- Topología ESP-NOW: nodos + gateway MQTT, o ESP32 directos al broker.
+- Comprar el 3er DHT22 (zona selvática). Confirmar si la CYD es ILI9341 o ST7789 (prueba 05).
+- Confirmar si siguen disponibles los DS18B20 y las LDR del prototipo anterior.
+- Umbrales editables desde la web (idea del código antiguo) y alerta de riego bloqueado en la web.
 - Depósito compartido o por zona.
 - Autenticación con Google (hoy: correo y contraseña) y dónde publicar la web (Vercel, Netlify o GitHub Pages).
 - Qué hacer con el "reinicio" de GitHub y Supabase solicitado antes (identificar recursos exactos y respaldar primero).
+## D-015 — Web con Supabase y despliegue en Vercel (2026-11-19)
+
+El ESP32 envía lecturas por HTTPS a Supabase. La web usa Supabase para la sesión, la telemetría y las órdenes, y se despliega en Vercel desde `web_pwa/`. Se retiran Docker, Flask, MQTT y el simulador de software del árbol activo. Las referencias a ese flujo en decisiones anteriores corresponden al historial del proyecto.

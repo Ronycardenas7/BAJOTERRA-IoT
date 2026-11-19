@@ -1,71 +1,56 @@
 // Panel de Control: tres zonas en paralelo (árida, húmeda y selvática) más el depósito de agua.
 
-// Hook que consulta el backend periódicamente y guarda el historial para los gráficos.
-import { useResumen } from "../features/telemetria/useResumen.js";
+// Hook que carga el historial de Supabase y recibe lecturas por Realtime.
+import { useResumenNube } from "../features/telemetria/useResumenNube.js";
 // Tarjetas y datos de zonas.
 import TarjetaDeposito from "../features/telemetria/TarjetaDeposito.jsx";
 import TarjetaZona from "../features/zonas/TarjetaZona.jsx";
 import { ZONAS } from "../features/zonas/zonas.js";
 // Formato de horas.
 import { formatearHora } from "../features/telemetria/formato.js";
-// Modo nube, sesión y formulario de acceso.
-import { MODO_NUBE, supabase } from "../services/supabase.js";
-import { useSesion } from "../features/sesion/useSesion.js";
+// Formulario de acceso y registro de las órdenes.
 import Acceso from "../features/sesion/Acceso.jsx";
+import HistorialComandos from "../features/actuadores/HistorialComandos.jsx";
 // Etiqueta visual.
 import Etiqueta from "../components/Etiqueta.jsx";
 
-// Página del panel: en modo nube exige sesión; en modo local muestra el contenido directamente.
-export default function Panel() {
-  // Modo local: sin cuentas, se puede ordenar.
-  if (!MODO_NUBE) return <ContenidoPanel puedeOrdenar fuente="Backend local" />;
-  // Modo nube: pasa por la sesión.
-  return <PanelNube />;
-}
-
-// Envoltorio del modo nube: pide iniciar sesión y muestra la cuenta.
-function PanelNube() {
-  // Usuario, permiso de operador y estado de carga de la sesión.
-  const { usuario, operador, cargando } = useSesion();
-  // Mientras se revisa la sesión guardada.
-  if (cargando) return <div className="contenedor panel"><p className="vacio">Comprobando sesión…</p></div>;
-  // Sin sesión: formulario de acceso.
-  if (!usuario) return <div className="contenedor"><Acceso /></div>;
-  // Con sesión: el panel con la barra de la cuenta.
+// Usa la sesión que ya comprobó la aplicación.
+export default function Panel({ recuperando, usuario, operador }) {
+  // La recuperación abre el formulario antes de mostrar las lecturas y controles.
+  if (recuperando) return <Acceso key="recuperar" modoInicial={usuario ? "cambiar" : "recuperar"} />;
+  if (!usuario) return <Acceso />;
+  // Reinicia lecturas y seguimiento de órdenes si cambia la cuenta.
   return (
     <ContenidoPanel
+      key={usuario.id}
       puedeOrdenar={operador}
-      fuente="Supabase (nube, tiempo real)"
       cuenta={
-        // Correo, permiso y botón para salir.
+        // Correo y permiso. El cierre está en la barra superior.
         <div className="cuenta">
           <span>{usuario.email}</span>
-          <Etiqueta tono={operador ? "bueno" : "neutro"}>{operador ? "Operador" : "Solo lectura"}</Etiqueta>
-          <button type="button" onClick={() => supabase.auth.signOut()}>Cerrar sesión</button>
+          <Etiqueta tono={operador ? "bueno" : "neutro"}>{operador ? "Operador" : "Control no disponible"}</Etiqueta>
         </div>
       }
     />
   );
 }
 
-// Contenido del panel. Props: puedeOrdenar (permiso para enviar órdenes), fuente (texto) y cuenta (barra opcional).
-function ContenidoPanel({ puedeOrdenar, fuente, cuenta = null }) {
+// Muestra las lecturas y habilita las órdenes para operadores.
+function ContenidoPanel({ puedeOrdenar, cuenta }) {
   // Último resumen, historial para gráficos, error de la última consulta y estado de carga.
-  const { resumen, historial, error, cargando, avisoReloj } = useResumen();
+  const { resumen, historial, error, cargando, avisoReloj } = useResumenNube();
 
   // Mientras no haya ninguna respuesta, se muestra un mensaje de carga.
   if (cargando && !resumen) {
     // Mensaje simple.
     return (
       <div className="contenedor panel">
-        <p className="vacio">Conectando con el backend…</p>
+        <p className="vacio">Conectando con Supabase…</p>
       </div>
     );
   }
 
-  // Zonas que la web espera pero el backend no envió (pasa si el backend corre una versión antigua del código).
-  const zonasFaltantes = resumen ? ZONAS.filter((zona) => !resumen.zonas?.[zona.id]) : [];
-  // Entradas de las zonas conocidas por la web (se ignoran zonas antiguas que el backend aún envíe).
+  // Entradas de las tres zonas del invernadero.
   const entradasZonas = resumen ? ZONAS.map((zona) => resumen.zonas?.[zona.id]).filter(Boolean) : [];
   // Entrada del depósito principal (puede faltar).
   const deposito = resumen?.depositos?.principal;
@@ -76,7 +61,7 @@ function ContenidoPanel({ puedeOrdenar, fuente, cuenta = null }) {
   // Cuántas zonas están en línea con datos recientes.
   const zonasEnLinea = entradasZonas.filter((e) => e.conexion.estado === "en_linea" && !e.conexion.desactualizada).length;
   // Cuántos actuadores están REPORTADOS como encendidos (no es lo mismo que "pedidos").
-  const actuadoresEncendidos = entradasZonas.reduce((total, e) => total + Object.values(e.lectura?.actuadores ?? {}).filter((estado) => estado === "encendido").length, 0);
+  const actuadoresEncendidos = entradasZonas.reduce((total, e) => total + Object.values(e.lectura?.actuadores ?? {}).filter((estado) => estado === "encendido" || estado === true).length, 0);
 
   // Devuelve la página.
   return (
@@ -87,41 +72,34 @@ function ContenidoPanel({ puedeOrdenar, fuente, cuenta = null }) {
         {/* Título y descripción. */}
         <div>
           <h1>Panel de Control</h1>
-          <p>Zonas de evaluación en paralelo: árida, húmeda y selvática. Fuente de datos: {fuente}.</p>
+          <p>Zonas árida, húmeda y selvática. Datos en tiempo real desde Supabase.</p>
         </div>
-        {/* Cuenta (solo en modo nube). */}
+        {/* Cuenta de la sesión actual. */}
         {cuenta}
       </div>
 
-      {/* Error de comunicación con el backend (se conservan los últimos datos). */}
+      {/* Error de comunicación con Supabase (se conservan los últimos datos). */}
       {error && (
         // role="alert" anuncia el error de inmediato.
         <p className="aviso aviso--malo" role="alert">
           {error}
         </p>
       )}
-      {/* Aviso si el reloj del equipo está desfasado (solo modo nube). */}
+      {/* Aviso si el reloj del equipo está desfasado. */}
       {avisoReloj && (
         <p className="aviso aviso--simulado" role="note">
           {avisoReloj}
-        </p>
-      )}
-      {/* Aviso si el backend no conoce alguna zona: casi siempre significa que sigue corriendo una versión antigua. */}
-      {zonasFaltantes.length > 0 && (
-        // role="alert" anuncia el problema de inmediato.
-        <p className="aviso aviso--malo" role="alert">
-          <strong>El backend no informa las zonas: {zonasFaltantes.map((zona) => zona.nombre).join(", ")}.</strong> Probablemente sigue corriendo una versión anterior del código. Detén los servicios (Ctrl+C en su terminal) y vuelve a iniciarlos con <code>python scripts/iniciar_local.py</code>.
         </p>
       )}
       {/* Aviso permanente cuando hay datos simulados. */}
       {hayDatosSimulados && (
         // role="note" marca una nota informativa.
         <p className="aviso aviso--simulado" role="note">
-          <strong>Datos SIMULADOS.</strong> No son mediciones reales: provienen del simulador de software. La luz, el CO₂ y la radiación son valores inventados.
+          <strong>Datos SIMULADOS.</strong> Las lecturas provienen de pruebas del sistema.
         </p>
       )}
 
-      {/* Si el backend nunca respondió, no hay nada más que mostrar. */}
+      {/* Muestra los indicadores y tarjetas al terminar la carga. */}
       {resumen && (
         <>
           {/* Indicadores generales. */}
@@ -152,7 +130,7 @@ function ContenidoPanel({ puedeOrdenar, fuente, cuenta = null }) {
               <TarjetaZona key={zona.id} zona={zona} entrada={resumen.zonas?.[zona.id]} unidades={resumen.unidades} historial={historial[zona.id]} puedeOrdenar={puedeOrdenar} />
             ))}
           </div>
-          {/* Tarjeta del depósito, debajo de las zonas (solo si el backend la informa). */}
+          {/* Tarjeta del depósito, debajo de las zonas. */}
           {deposito && (
             <div style={{ marginTop: 20 }}>
               <TarjetaDeposito entrada={deposito} unidades={resumen.unidades} />
@@ -160,6 +138,8 @@ function ContenidoPanel({ puedeOrdenar, fuente, cuenta = null }) {
           )}
         </>
       )}
+      {/* Cualquier cuenta con sesión puede revisar órdenes de los dispositivos. */}
+      <HistorialComandos />
     </div>
   );
 }

@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 360" width="100%" height="100%" fill="none">
+  <defs>
+    <radialGradient id="glow-schefflera" cx="50%" cy="40%" r="55%">
+      <stop offset="0%" stop-color="#34d399" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#052e16" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="leaf-grad-1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#10b981"/>
+      <stop offset="100%" stop-color="#064e3b"/>
+    </linearGradient>
+    <linearGradient id="leaf-grad-2" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#34d399"/>
+      <stop offset="100%" stop-color="#047857"/>
+    </linearGradient>
+    <linearGradient id="pot-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1f2937"/>
+      <stop offset="100%" stop-color="#111827"/>
+    </linearGradient>
+  </defs>
+  <!-- Resplandor ambiental de la planta -->
+  <circle cx="150" cy="140" r="130" fill="url(#glow-schefflera)"/>
+  
+  <!-- Tallo central -->
+  <path d="M150 250 Q148 180 150 110" stroke="#065f46" stroke-width="6" stroke-linecap="round"/>
+  <path d="M150 180 Q130 150 115 130" stroke="#047857" stroke-width="4" stroke-linecap="round"/>
+  <path d="M150 160 Q170 140 190 120" stroke="#047857" stroke-width="4" stroke-linecap="round"/>
+  
+  <!-- Hojas en racimo tipo Schefflera (forma de paraguas) -->
+  <!-- Grupo superior -->
+  <path d="M150 110 C140 70 130 50 150 30 C170 50 160 70 150 110 Z" fill="url(#leaf-grad-1)"/>
+  <path d="M150 110 C120 85 100 75 105 55 C125 60 135 80 150 110 Z" fill="url(#leaf-grad-2)"/>
+  <path d="M150 110 C180 85 200 75 195 55 C175 60 165 80 150 110 Z" fill="url(#leaf-grad-2)"/>
+  <path d="M150 110 C110 100 90 105 85 85 C105 85 125 95 150 110 Z" fill="url(#leaf-grad-1)"/>
+  <path d="M150 110 C190 100 210 105 215 85 C195 85 175 95 150 110 Z" fill="url(#leaf-grad-1)"/>
+  
+  <!-- Grupo lateral izquierdo -->
+  <path d="M115 130 C90 110 75 95 90 80 C105 95 110 115 115 130 Z" fill="url(#leaf-grad-1)"/>
+  <path d="M115 130 C80 130 60 135 70 115 C85 120 100 125 115 130 Z" fill="url(#leaf-grad-2)"/>
+  <path d="M115 130 C100 155 85 165 75 150 C85 140 100 135 115 130 Z" fill="url(#leaf-grad-1)"/>
+
+  <!-- Grupo lateral derecho -->
+  <path d="M190 120 C215 100 230 85 215 70 C200 85 195 105 190 120 Z" fill="url(#leaf-grad-1)"/>
+  <path d="M190 120 C225 120 245 125 235 105 C220 110 205 115 190 120 Z" fill="url(#leaf-grad-2)"/>
+  <path d="M190 120 C205 145 220 155 230 140 C220 130 205 125 190 120 Z" fill="url(#leaf-grad-1)"/>
+
+  <!-- Maceta cilíndrica moderna -->
+  <ellipse cx="150" cy="245" rx="52" ry="12" fill="#374151"/>
+  <path d="M102 245 L114 325 Q150 338 186 325 L198 245 Z" fill="url(#pot-grad)"/>
+  <ellipse cx="150" cy="245" rx="48" ry="10" fill="#111827"/>
+  <!-- Línea decorativa verde lima de la maceta -->
+  <path d="M113 285 Q150 295 187 285" stroke="#10b981" stroke-width="2" stroke-opacity="0.8"/>
+</svg>

@@ -18,7 +18,7 @@ export const NOMBRES_MEDICION = {
 // Decimales a mostrar en cada medición.
 const DECIMALES = { temperatura: 1, humedad_ambiente: 1, humedad_sustrato: 1, luz: 0, co2: 0, radiacion: 0, conductividad_ec: 2, nivel_agua: 0 };
 
-// Unidades de cada medición (iguales a backend/app/domain/constantes.py). En modo nube no hay backend que las envíe.
+// Unidades que usa el panel para presentar las mediciones.
 export const UNIDADES = {
   temperatura: "°C",
   humedad_ambiente: "% HR",
@@ -34,7 +34,6 @@ export const UNIDADES = {
 export const NOMBRES_ACTUADOR = {
   bomba: "Bomba de agua",
   ventilador: "Extractor",
-  luces: "Luces LED",
 };
 
 // Formatea solo el número de una medición (sin unidad); un dato ausente se muestra como "—", nunca como 0.
@@ -61,8 +60,9 @@ export function formatearMedicion(nombre, valor, unidades) {
 
 // Convierte un instante en UTC (texto ISO) a una hora legible indicando la zona horaria.
 export function formatearHora(iso) {
-  // Sin dato no hay hora.
-  if (!iso) return "—";
+  // Una fecha ausente o inválida se muestra como dato faltante.
+  const instante = typeof iso === "string" ? Date.parse(iso) : NaN;
+  if (!Number.isFinite(instante)) return "—";
   // Intl.DateTimeFormat da formato de hora según idioma y zona horaria.
   return new Intl.DateTimeFormat("es-CL", {
     // Muestra horas, minutos y segundos (no se usa "timeStyle" porque no se puede combinar con timeZoneName).
@@ -73,7 +73,7 @@ export function formatearHora(iso) {
     timeZone: ZONA_HORARIA,
     // Agrega la abreviatura de la zona (por ejemplo "GMT-3") para que no haya dudas.
     timeZoneName: "short",
-  }).format(new Date(iso));
+  }).format(instante);
 }
 
 // Texto y tipo visual de la conexión de un dispositivo, considerando si los datos están desactualizados.
@@ -95,10 +95,20 @@ export function describirComando(comando) {
   // Sin comando no hay texto.
   if (!comando) return null;
   // Verbo según lo pedido.
-  const accion = `${comando.estado_solicitado === "encendido" ? "Encender" : "Apagar"} ${NOMBRES_ACTUADOR[comando.actuador] ?? comando.actuador}`;
+  let accion;
+  if (comando.actuador === "modo") {
+    // Cambio de modo de control.
+    accion = `Cambiar modo a ${comando.estado_solicitado === "automatico" ? "automático" : comando.estado_solicitado}`;
+  } else if (comando.actuador === "TOBJ" || comando.actuador === "setpoint") {
+    // Cambio de objetivo de temperatura.
+    accion = `Fijar temperatura objetivo en ${comando.estado_solicitado} °C`;
+  } else {
+    // Actuadores de encendido/apagado estándar.
+    accion = `${comando.estado_solicitado === "encendido" ? "Encender" : "Apagar"} ${NOMBRES_ACTUADOR[comando.actuador] ?? comando.actuador}`;
+  }
   // Texto según la etapa del comando.
   switch (comando.estado) {
-    // Entregada al broker; falta que el dispositivo responda.
+    // Registrada en Supabase; falta que el dispositivo responda.
     case "enviado":
       return { texto: `${accion}: orden enviada, esperando confirmación…`, tono: "aviso" };
     // El dispositivo informó que la ejecutó.
@@ -116,9 +126,9 @@ export function describirComando(comando) {
     // La orden venció y nadie la confirmó: no se sabe qué pasó con el actuador.
     case "sin_confirmacion":
       return { texto: `${accion}: sin confirmación; la orden caducó y el estado real del actuador es incierto`, tono: "aviso" };
-    // No salió del backend.
+    // La orden informa un fallo de envío.
     case "fallido_envio":
-      return { texto: `${accion}: no se pudo enviar (${comando.detalle ?? "sin conexión con el broker"})`, tono: "malo" };
+      return { texto: `${accion}: no se pudo enviar (${comando.detalle ?? "sin detalle"})`, tono: "malo" };
     // Estado no reconocido.
     default:
       return { texto: `${accion}: ${comando.estado}`, tono: "neutro" };

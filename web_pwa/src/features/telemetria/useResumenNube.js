@@ -1,5 +1,4 @@
-// Hook del modo nube: carga el historial desde Supabase y recibe cada lectura nueva al instante (Realtime).
-// Entrega { resumen, historial, error, cargando } con la MISMA forma que el modo local, así las tarjetas no cambian.
+// Carga el historial desde Supabase y recibe las lecturas nuevas por Realtime.
 
 // useEffect conecta y desconecta Realtime; useMemo arma el resumen; useState guarda datos.
 import { useEffect, useMemo, useState } from "react";
@@ -11,7 +10,7 @@ import { UNIDADES } from "./formato.js";
 
 // Máximo de lecturas por zona en memoria (acota el uso de RAM aunque la página quede abierta días).
 const MAX_PUNTOS = 60;
-// Si la última lectura tiene más de estos segundos, se marca como desactualizada (ESP32 envía cada 15 s; simulador cada 10 s).
+// Las lecturas más antiguas que este umbral se marcan como desactualizadas.
 const UMBRAL_S = 60;
 // Cada cuánto se recalcula la antigüedad de los datos (no hace peticiones: solo actualiza la pantalla).
 const TIC_MS = 5000;
@@ -30,12 +29,22 @@ function fusionar(actuales, nuevas) {
   return [...porId.values()].sort((a, b) => Date.parse(a.medido_en) - Date.parse(b.medido_en)).slice(-MAX_PUNTOS);
 }
 
-// Estado de conexión calculado a partir de la última lectura (en la nube no hay "última voluntad" MQTT).
+// Conserva la lectura más reciente aunque las respuestas lleguen en otro orden.
+function lecturaMasReciente(anterior, nueva) {
+  if (!nueva) return anterior;
+  if (!anterior) return nueva;
+  const fechaAnterior = Date.parse(anterior.medido_en);
+  const fechaNueva = Date.parse(nueva.medido_en);
+  return !Number.isFinite(fechaAnterior) || fechaNueva >= fechaAnterior ? nueva : anterior;
+}
+
+// Estado de conexión calculado a partir de la última lectura.
 function conexionDesde(lectura, ahora) {
-  // Sin lecturas: no se sabe nada del dispositivo.
-  if (!lectura) return { estado: "desconocido", desactualizada: false, segundos_desde_ultima_lectura: null };
+  // Una fecha inválida tampoco permite confirmar la conexión.
+  const recepcion = Date.parse(lectura?.recibido_en);
+  if (!Number.isFinite(recepcion)) return { estado: "desconocido", desactualizada: false, segundos_desde_ultima_lectura: null };
   // Segundos desde que Supabase recibió la lectura.
-  const edad = Math.max(0, (ahora - Date.parse(lectura.recibido_en)) / 1000);
+  const edad = Math.max(0, (ahora - recepcion) / 1000);
   // Reciente = en línea; antigua = desactualizada (no se afirma que esté desconectado).
   return { estado: edad <= UMBRAL_S ? "en_linea" : "desconocido", desactualizada: edad > UMBRAL_S, segundos_desde_ultima_lectura: edad };
 }
@@ -48,6 +57,8 @@ export function useResumenNube() {
   const [deposito, setDeposito] = useState(null);
   // Mensaje de error (null si todo bien).
   const [error, setError] = useState(null);
+  // El estado del canal no debe ocultar errores al consultar el historial.
+  const [errorRealtime, setErrorRealtime] = useState(null);
   // true hasta terminar la carga inicial.
   const [cargando, setCargando] = useState(true);
   // Diferencia entre el reloj del servidor y el de este equipo (ms); corrige PCs con la hora mal configurada.
@@ -74,8 +85,8 @@ export function useResumenNube() {
         if (!activo) return;
         // Une con lo que haya llegado por Realtime mientras tanto.
         setHistorial((previo) => Object.fromEntries(IDS_ZONAS.map((zona, i) => [zona, fusionar(previo[zona], series[i])])));
-        // Guarda el depósito si aún no llegó uno más nuevo.
-        setDeposito((previo) => previo ?? ultimaDep);
+        // Conserva la lectura más reciente entre la consulta y el canal.
+        setDeposito((previo) => lecturaMasReciente(previo, ultimaDep));
         // Limpia errores.
         setError(null);
       // Error de red o de permisos.
@@ -88,22 +99,33 @@ export function useResumenNube() {
         if (activo) setCargando(false);
       }
     }
-    // Se suscribe a las lecturas nuevas.
+    // Se suscribe a las lecturas nuevas y repone el historial tras reconectar.
+    let recargarAlConectar = false;
     const dejarDeEscuchar = escucharLecturas({
       // Lectura nueva de una zona: se agrega a su historial.
       alLeerZona: (lectura) => setHistorial((previo) => ({ ...previo, [lectura.zona]: fusionar(previo[lectura.zona], [lectura]) })),
-      // Lectura nueva del depósito: reemplaza la anterior.
-      alLeerDeposito: (lectura) => setDeposito(lectura),
+      // Lectura nueva del depósito: conserva la de mayor fecha.
+      alLeerDeposito: (lectura) => setDeposito((previo) => lecturaMasReciente(previo, lectura)),
       // Estado de la conexión en tiempo real.
       alCambiarEstado: (estado) => {
-        // Conectado: sin error de tiempo real.
-        if (estado === "SUBSCRIBED") setError(null);
+        // Descarta avisos de una suscripción que ya se desmontó.
+        if (!activo) return;
+        if (estado === "SUBSCRIBED") {
+          setErrorRealtime(null);
+          if (recargarAlConectar) cargar();
+          recargarAlConectar = true;
+        }
         // Problemas: se avisa (supabase-js reintenta solo).
-        else if (estado === "CHANNEL_ERROR" || estado === "TIMED_OUT") setError("Se perdió la conexión en tiempo real; reintentando…");
+        else if (estado === "CHANNEL_ERROR" || estado === "TIMED_OUT" || estado === "CLOSED") {
+          recargarAlConectar = true;
+          setErrorRealtime("La conexión en tiempo real se interrumpió.");
+        }
       },
     });
     // Mide el desfase del reloj (si falla, se mantiene el último valor).
-    const medir = () => medirDesfaseMs().then((ms) => activo && setDesfase(ms)).catch(() => {});
+    const medir = () => medirDesfaseMs().then((ms) => {
+      if (activo && Number.isFinite(ms)) setDesfase(ms);
+    }).catch(() => {});
     // Carga inicial y primera medición del reloj.
     cargar();
     medir();
@@ -120,7 +142,7 @@ export function useResumenNube() {
     };
   }, []);
 
-  // Arma el resumen con la misma forma que el backend local (solo se recalcula si cambian los datos o el reloj).
+  // Arma el resumen para las tarjetas cuando cambian los datos o el reloj.
   const resumen = useMemo(() => {
     // Mientras carga no hay resumen.
     if (cargando) return null;
@@ -148,5 +170,5 @@ export function useResumenNube() {
       ? `El reloj de este equipo está ${desfase < 0 ? "adelantado" : "atrasado"} ${Math.round(Math.abs(desfase) / 60000)} min respecto del servidor. La web lo corrige, pero conviene ajustar la hora de Windows (hora automática y zona horaria).`
       : null;
   // Devuelve el estado.
-  return { resumen, historial, error, cargando, avisoReloj };
+  return { resumen, historial, error: error ?? errorRealtime, cargando, avisoReloj };
 }

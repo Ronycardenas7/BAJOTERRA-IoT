@@ -1,43 +1,47 @@
-// Sección "Variables monitoreadas": rangos que acepta el sistema.
-// Son los límites de validación del contrato de datos, NO la precisión de sensores concretos (aún no están elegidos).
-
-// Variables: nombre, rango aceptado y nota.
-const VARIABLES = [
-  { nombre: "Temperatura", rango: "−40 a 85 °C", nota: "Aire del compartimento" },
-  { nombre: "Humedad del aire", rango: "0 – 100 % HR", nota: "Humedad relativa" },
-  { nombre: "Humedad del sustrato", rango: "0 – 100 %", nota: "Relativa a la calibración del sensor" },
-  { nombre: "CO₂", rango: "250 – 5000 ppm", nota: "Zona selvática" },
-  { nombre: "Radiación solar", rango: "0 – 1500 W/m²", nota: "Zona árida" },
-  { nombre: "Conductividad (EC)", rango: "0 – 20 mS/cm", nota: "Solución del depósito" },
+// Catálogo de magnitudes. Los SVG locales son de Tabler Icons (licencia MIT).
+const VARIABLES_SISTEMA = [
+  { id: "temperatura", nombre: "Temperatura", icono: "temperature", rango: "−40 a 85 °C" },
+  { id: "humedad-aire", nombre: "Humedad del aire", icono: "droplet-half-2", rango: "0 – 100 % HR" },
+  { id: "humedad-sustrato", nombre: "Humedad del sustrato", icono: "plant-2", rango: "0 – 100 %" },
+  { id: "co2", nombre: "CO₂", icono: "atom-2", rango: "Sin sensor" },
+  { id: "radiacion-solar", nombre: "Radiación solar", icono: "sun-high", rango: "Sin sensor" },
+  { id: "conductividad", nombre: "Conductividad", icono: "circuit-resistor", rango: "Sin sensor" },
 ];
 
-// Componente sin props.
 export default function Variables() {
-  // Devuelve la sección.
   return (
-    // Sección ancla "#variables" con fondo alternativo.
-    <section className="seccion seccion--alt" id="variables" aria-labelledby="titulo-variables">
-      {/* Contenedor. */}
+    <section className="seccion-variables-conectadas" id="variables" aria-labelledby="titulo-variables">
       <div className="contenedor">
-        {/* Rótulo y título. */}
-        <p className="rotulo">Variables monitoreadas</p>
-        <h2 className="titulo-seccion" id="titulo-variables">
-          Lo que el sistema mide
-        </h2>
-        {/* Rejilla de variables. */}
-        <div className="variables">
-          {VARIABLES.map(({ nombre, rango, nota }) => (
-            // Una tarjeta por variable.
-            <div className="variable" key={nombre}>
-              {/* Nombre, rango y nota. */}
-              <div className="variable__nombre">{nombre}</div>
-              <div className="variable__rango">{rango}</div>
-              <div className="variable__nota">{nota}</div>
+        {/* Encabezado editorial */}
+        <div className="seccion-variables-conectadas__cabecera">
+          <p className="rotulo-lima">Variables Ambientales</p>
+          <h2 id="titulo-variables" className="seccion-variables-conectadas__titulo">
+            Magnitudes ambientales
+          </h2>
+          <p className="seccion-variables-conectadas__bajada">
+            Los nodos miden la temperatura y la humedad del aire y del sustrato de cada zona.
+          </p>
+        </div>
+
+        {/* Los iconos distinguen las magnitudes; el texto comunica el rango o la disponibilidad. */}
+        <div className="seccion-variables-conectadas__fila">
+          {/* Una celda por magnitud, sin elementos decorativos que ocupen espacio. */}
+          {VARIABLES_SISTEMA.map((item) => (
+            <div key={item.id} className="circulo-variable-item" data-magnitud={item.id}>
+              {/* La máscara conserva la forma del SVG y toma el color de la magnitud. */}
+              <div className="circulo-variable-item__aro" aria-hidden="true">
+                <span
+                  className="circulo-variable-item__icono"
+                  style={{ "--grafico-magnitud": `url("/assets/iconos/tabler/${item.icono}.svg")` }}
+                />
+              </div>
+
+              {/* Título de la variable */}
+              <h3 className="circulo-variable-item__nombre">{item.nombre}</h3>
+              <span className="circulo-variable-item__rango">{item.rango}</span>
             </div>
           ))}
         </div>
-        {/* Aclaración honesta. */}
-        <p className="nota-pequena">Rango aceptado por el sistema para validar los datos. La precisión real dependerá de los sensores que se elijan y de su calibración.</p>
       </div>
     </section>
   );

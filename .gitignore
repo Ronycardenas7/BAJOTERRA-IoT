@@ -27,3 +27,7 @@ supabase/.branches/
 firmware/**/secretos.h
 # Configuración del simulador en modo nube (contiene la clave del dispositivo).
 simulador/secretos_nube.conf
+# Clave del dispositivo de la simulación en Wokwi (firmware/controlador/clave_wokwi.txt).
+firmware/**/clave_*.txt
+# Registros del instalador de Windows (scripts/instalar_windows.bat).
+logs/

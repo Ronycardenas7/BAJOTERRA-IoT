@@ -1,47 +1,86 @@
-// Barra de navegación fija con efecto vidrio. Mantiene siempre visible el acceso al Panel de Control.
+// ============================================================================
+// BAJOTERRA-IoT · Encabezado Minimalista (Header Verde Bosque + Lima Vibrante)
+// Estructura:
+//  - Izquierda: hoja de BAJOTERRA y enlaces de navegación.
+//  - Derecha: selector de tema y acceso al panel.
+// ============================================================================
 
-// Iconos.
+// Mantiene el selector de tema sincronizado con la apariencia de la página.
+import React, { useState } from "react";
 import Icono from "./Iconos.jsx";
 
-// Enlaces de la página de inicio (anclas a las secciones).
-const ENLACES = [
-  { href: "#proyecto", texto: "Proyecto" },
-  { href: "#capacidades", texto: "Capacidades" },
+// Enlaces de navegación con anclas internas separadas por barras verticales (|)
+const ENLACES_NAV = [
+  { href: "#inicio", texto: "Inicio" },
   { href: "#zonas", texto: "Zonas" },
-  { href: "#variables", texto: "Variables" },
+  { href: "#arquitectura", texto: "Proyecto" },
+  { href: "#hardware", texto: "Hardware" },
 ];
 
-// Props: ruta actual ("inicio" o "panel").
-export default function Encabezado({ ruta }) {
-  // Devuelve la barra.
+// Muestra navegación pública únicamente si no hay una sesión activa.
+export default function Encabezado({ ruta, sesionActiva, cerrando, cerrarSesion }) {
+  // Lee la preferencia aplicada al cargar la página.
+  const [tema, setTema] = useState(() => document.documentElement.dataset.tema ?? "oscuro");
+
+  function alternarTema() {
+    // Aplica el tema en la misma página, sin volver a montar el panel.
+    const siguiente = tema === "claro" ? "oscuro" : "claro";
+    document.documentElement.dataset.tema = siguiente;
+    setTema(siguiente);
+    try {
+      localStorage.setItem("bajoterra-tema", siguiente);
+    } catch {
+      // El cambio sigue funcionando para esta visita si se bloquea el almacenamiento.
+    }
+  }
+
   return (
-    // <header> semántico; la clase "barra" la fija arriba y le da el efecto vidrio.
-    <header className="barra">
-      {/* Contenedor centrado. */}
-      <div className="contenedor barra__fila">
-        {/* Marca: vuelve al inicio. */}
-        <a className="marca" href="#/" aria-label="BAJOTERRA, ir al inicio">
-          {/* Icono de hoja. */}
-          <Icono nombre="hoja" tamano={26} />
-          {/* Nombre del proyecto. */}
-          BAJOTERRA
-        </a>
-        {/* Enlaces a las secciones (se ocultan en pantallas angostas). */}
-        <nav className="barra__enlaces" aria-label="Secciones de la página">
-          {ENLACES.map(({ href, texto }) => (
-            // Cada enlace apunta a una ancla de la página de inicio.
-            <a key={href} href={href}>
-              {texto}
+    <header className="barra-editorial" role="banner">
+      <div className="contenedor barra-editorial__fila">
+        {/* Lado izquierdo: Isotipo emblemático, Marca y Navegación dividida por barras */}
+        <div className="barra-editorial__izquierda">
+          {/* La marca apunta a la vista que corresponde a la sesión. */}
+          <a className="barra-marca" href={sesionActiva ? "#/panel" : "#/"} aria-label={sesionActiva ? "BAJOTERRA, ir al panel" : "BAJOTERRA, ir al inicio"}>
+            <span className="barra-marca__isotipo" aria-hidden="true">
+              <Icono nombre="hojaMarca" tamano={26} />
+            </span>
+            <span className="barra-marca__texto">BAJOTERRA</span>
+          </a>
+
+          {/* Las secciones públicas están disponibles al cerrar sesión. */}
+          {!sesionActiva && (
+            <>
+              <span className="barra-editorial__divisor-logo" aria-hidden="true" />
+              <nav className="barra-editorial__nav" aria-label="Navegación principal">
+                {ENLACES_NAV.map((enlace, index) => (
+                  <React.Fragment key={enlace.href}>
+                    <a href={enlace.href} className="barra-editorial__link">{enlace.texto}</a>
+                    {index < ENLACES_NAV.length - 1 && <span className="barra-editorial__separador" aria-hidden="true">|</span>}
+                  </React.Fragment>
+                ))}
+              </nav>
+            </>
+          )}
+        </div>
+
+        {/* Lado derecho: apariencia y acceso al panel. */}
+        <div className="barra-editorial__derecha">
+          <button type="button" className="barra-editorial__tema" onClick={alternarTema} aria-pressed={tema === "claro"} aria-label="Modo claro">
+            {tema === "claro" ? <span aria-hidden="true">☾</span> : <Icono nombre="sol" tamano={18} />}
+          </button>
+
+          {/* La salida de la vista autenticada pasa por el cierre de sesión. */}
+          {sesionActiva ? (
+            <button type="button" className="boton-contorno-lima" onClick={cerrarSesion} disabled={cerrando}>
+              {cerrando ? "Cerrando…" : "Cerrar sesión"}
+            </button>
+          ) : (
+            <a className="boton-contorno-lima" href="#/panel" aria-current={ruta === "panel" ? "page" : undefined}>
+              <span>Ir al Panel</span>
+              <Icono nombre="flecha" tamano={15} />
             </a>
-          ))}
-        </nav>
-        {/* Acceso al Panel de Control (se resalta cuando ya se está en él). */}
-        <a className="boton boton--primario" href="#/panel" aria-current={ruta === "panel" ? "page" : undefined}>
-          {/* Texto del botón. */}
-          Panel de Control
-          {/* Flecha. */}
-          <Icono nombre="flecha" tamano={16} />
-        </a>
+          )}
+        </div>
       </div>
     </header>
   );

@@ -9,6 +9,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <!-- Color de la barra del navegador en celulares (coincide con el fondo oscuro). -->
     <meta name="theme-color" content="#06100b" />
+    <!-- Aplica el tema guardado antes del primer dibujo. -->
+    <script>
+      try {
+        document.documentElement.dataset.tema = localStorage.getItem("bajoterra-tema") === "claro" ? "claro" : "oscuro";
+      } catch {
+        // Si el navegador bloquea el almacenamiento, se usa el tema oscuro.
+      }
+    </script>
     <!-- Descripción breve de la página. -->
     <meta name="description" content="Monitoreo y control de un invernadero con tres zonas de evaluación: árida, húmeda y selvática." />
     <!-- Icono de la pestaña. -->
